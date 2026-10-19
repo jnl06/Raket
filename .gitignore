@@ -9,9 +9,6 @@ env/
 .venv/
 
 
-# Database files
-db.sqlite3
-
 # Django static files (if using collectstatic)
 staticfiles/
 
