@@ -1,0 +1,135 @@
+/* ---------- Navbar (matches Figma "Navbar" component, 1440 x 120) ---------- */
+.navbar {
+  display: flex;
+  align-items: center;
+  height: 120px;
+  padding: 0 72px 0 64px;
+  background: #fff;
+  border-bottom: 1px solid var(--line);
+  font-family: "Crimson Text", Georgia, "Times New Roman", serif;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.navbar__logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 88px;
+  height: 88px;
+  border-radius: 50%;
+  overflow: hidden;
+}
+.navbar__logo img {
+  width: 76px;
+  height: auto;
+  display: block;
+}
+
+/* ---- main links ---- */
+.navbar__links {
+  display: flex;
+  align-items: center;
+  gap: 52px;
+  margin-left: 56px;
+  height: 100%;
+}
+
+.navbar__link {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 100%;
+  font-size: 22px;
+  line-height: 28px;
+  color: var(--ink);
+  transition: color 0.15s ease;
+}
+.navbar__link:hover { color: var(--indigo); }
+
+.navbar__link.is-active { color: var(--indigo); }
+/* active indicator: 48 x 4 bar on the bottom edge */
+.navbar__link.is-active::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -1px;
+  width: 48px;
+  height: 4px;
+  transform: translateX(-50%);
+  border-radius: 2px;
+  background: var(--indigo);
+}
+.navbar__caret { flex-shrink: 0; }
+
+/* ---- right side: search | divider | sign up | sign in ---- */
+.navbar__account {
+  display: flex;
+  align-items: center;
+  margin-left: auto;
+}
+
+.navbar__search {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: var(--surface-muted);
+  color: #000;
+  cursor: pointer;
+}
+.navbar__search:hover { background: #e9ebf3; }
+
+.navbar__separator {
+  width: 1px;
+  height: 36px;
+  margin: 0 16px 0 32px;
+  background: #e2e5ed;
+}
+
+.navbar__signup {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 104px;
+  font-size: 18px;
+  line-height: 24px;
+  color: var(--ink);
+}
+.navbar__signup:hover { color: var(--indigo); }
+
+.navbar__signin {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 128px;
+  height: 48px;
+  margin-left: 6px;
+  border-radius: 10px;
+  font-size: 18px;
+  line-height: 24px;
+  color: #fff;
+  background: var(--indigo);
+}
+.navbar__signin:hover { background: #2e2890; }
+
+/* ---------- Responsive ---------- */
+@media (max-width: 1100px) {
+  .navbar { padding: 0 24px; }
+  .navbar__links { gap: 28px; margin-left: 28px; }
+}
+@media (max-width: 900px) {
+  .navbar { height: 88px; }
+  .navbar__links { display: none; }
+  .navbar__logo { width: 64px; height: 64px; }
+  .navbar__logo img { width: 56px; }
+  .navbar__separator { margin-left: 16px; }
+  .navbar__signup { width: auto; padding: 0 12px; }
+  .navbar__signin { width: 96px; height: 42px; }
+}
