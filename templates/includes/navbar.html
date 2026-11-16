@@ -10,16 +10,44 @@
        class="navbar__link{% if request.resolver_match.view_name == 'jobs:home' %} is-active{% endif %}"
        {% if request.resolver_match.view_name == 'jobs:home' %}aria-current="page"{% endif %}>Home</a>
 
-    <a href="#" class="navbar__link navbar__link--menu">
-      For workers
-      <svg class="navbar__caret" width="18" height="18" viewBox="0 0 20 20" aria-hidden="true"><path d="M5 7l5 5 5-5z" fill="currentColor"/></svg>
-    </a>
+    {# ---- For workers dropdown ---- #}
+    <div class="navbar__item" data-dropdown>
+      <button type="button" class="navbar__link navbar__link--menu" aria-expanded="false" aria-controls="menu-workers" data-dropdown-toggle>
+        For workers
+        <svg class="navbar__caret" width="18" height="18" viewBox="0 0 20 20" aria-hidden="true"><path d="M5 7l5 5 5-5z" fill="currentColor"/></svg>
+      </button>
+      <div class="navbar__menu" id="menu-workers" hidden>
+        <button type="button" class="navbar__menu-head" data-dropdown-toggle aria-label="Close For workers menu">
+          <span>For workers</span>
+          <svg width="15" height="15" viewBox="0 0 20 20" aria-hidden="true"><path d="M2 16L10 3l8 13z" fill="currentColor"/></svg>
+        </button>
+        <ul class="navbar__menu-list">
+          <li><a href="#">Find jobs</a></li>
+          <li><a href="#">Manage applied jobs</a></li>
+        </ul>
+      </div>
+    </div>
 
-    <a href="{% url 'jobs:post_job' %}"
-       class="navbar__link navbar__link--menu{% if request.resolver_match.view_name == 'jobs:post_job' %} is-active{% endif %}">
-      For households
-      <svg class="navbar__caret" width="18" height="18" viewBox="0 0 20 20" aria-hidden="true"><path d="M5 7l5 5 5-5z" fill="currentColor"/></svg>
-    </a>
+    {# ---- For households dropdown ---- #}
+    <div class="navbar__item navbar__item--wide" data-dropdown>
+      <button type="button"
+              class="navbar__link navbar__link--menu{% if request.resolver_match.view_name == 'jobs:post_job' %} is-active{% endif %}"
+              aria-expanded="false" aria-controls="menu-households" data-dropdown-toggle>
+        For households
+        <svg class="navbar__caret" width="18" height="18" viewBox="0 0 20 20" aria-hidden="true"><path d="M5 7l5 5 5-5z" fill="currentColor"/></svg>
+      </button>
+      <div class="navbar__menu" id="menu-households" hidden>
+        <button type="button" class="navbar__menu-head" data-dropdown-toggle aria-label="Close For households menu">
+          <span>For households</span>
+          <svg width="15" height="15" viewBox="0 0 20 20" aria-hidden="true"><path d="M2 16L10 3l8 13z" fill="currentColor"/></svg>
+        </button>
+        <ul class="navbar__menu-list">
+          <li><a href="{% url 'jobs:post_job' %}">Post jobs</a></li>
+          <li><a href="#">Manage applicants</a></li>
+          <li><a href="#">Manage posted jobs</a></li>
+        </ul>
+      </div>
+    </div>
   </nav>
 
   <div class="navbar__account">
@@ -34,3 +62,30 @@
     <a href="#" class="navbar__signin">Sign In</a>
   </div>
 </header>
+
+<script>
+  // Navbar dropdowns: click to open/close, one open at a time,
+  // close on outside click or Escape.
+  document.addEventListener("click", function (e) {
+    var toggle = e.target.closest("[data-dropdown-toggle]");
+    var current = toggle ? toggle.closest("[data-dropdown]") : null;
+
+    document.querySelectorAll("[data-dropdown]").forEach(function (dropdown) {
+      var menu = dropdown.querySelector(".navbar__menu");
+      var trigger = dropdown.querySelector(".navbar__link");
+      var open = false;
+      if (dropdown === current) open = menu.hidden; // toggle the clicked one
+      menu.hidden = !open;
+      trigger.setAttribute("aria-expanded", String(open));
+      if (dropdown === current && !open) trigger.focus();
+    });
+  });
+
+  document.addEventListener("keydown", function (e) {
+    if (e.key !== "Escape") return;
+    document.querySelectorAll("[data-dropdown]").forEach(function (dropdown) {
+      dropdown.querySelector(".navbar__menu").hidden = true;
+      dropdown.querySelector(".navbar__link").setAttribute("aria-expanded", "false");
+    });
+  });
+</script>
