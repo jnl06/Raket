@@ -1,0 +1,116 @@
+{% load static %}
+{# Site navbar (Figma: "Navbar" component). Included by base.html. #}
+<header class="navbar">
+  <a href="{% url 'jobs:home' %}" class="navbar__logo" aria-label="Raket home">
+    <img src="{% static 'image/raket_logo.png' %}" alt="Raket">
+  </a>
+
+  <nav class="navbar__links" aria-label="Main">
+    <a href="{% url 'jobs:home' %}"
+       class="navbar__link{% if request.resolver_match.view_name == 'jobs:home' %} is-active{% endif %}"
+       {% if request.resolver_match.view_name == 'jobs:home' %}aria-current="page"{% endif %}>Home</a>
+
+    {# ---- For workers dropdown ---- #}
+    <div class="navbar__item" data-dropdown>
+      <button type="button" class="navbar__link navbar__link--menu" aria-expanded="false" aria-controls="menu-workers" data-dropdown-toggle>
+        For workers
+        <svg class="navbar__caret" width="18" height="18" viewBox="0 0 20 20" aria-hidden="true"><path d="M5 7l5 5 5-5z" fill="currentColor"/></svg>
+      </button>
+      <div class="navbar__menu" id="menu-workers" hidden>
+        <button type="button" class="navbar__menu-head" data-dropdown-toggle aria-label="Close For workers menu">
+          <span>For workers</span>
+          <svg width="15" height="15" viewBox="0 0 20 20" aria-hidden="true"><path d="M2 16L10 3l8 13z" fill="currentColor"/></svg>
+        </button>
+        <div class="navbar__menu-body">
+          <div class="navbar__menu-inner">
+          <ul class="navbar__menu-list">
+            <li><a href="#">Find jobs</a></li>
+            <li><a href="#">Manage applied jobs</a></li>
+          </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {# ---- For households dropdown ---- #}
+    <div class="navbar__item navbar__item--wide" data-dropdown>
+      <button type="button"
+              class="navbar__link navbar__link--menu{% if request.resolver_match.view_name == 'jobs:post_job' %} is-active{% endif %}"
+              aria-expanded="false" aria-controls="menu-households" data-dropdown-toggle>
+        For households
+        <svg class="navbar__caret" width="18" height="18" viewBox="0 0 20 20" aria-hidden="true"><path d="M5 7l5 5 5-5z" fill="currentColor"/></svg>
+      </button>
+      <div class="navbar__menu" id="menu-households" hidden>
+        <button type="button" class="navbar__menu-head" data-dropdown-toggle aria-label="Close For households menu">
+          <span>For households</span>
+          <svg width="15" height="15" viewBox="0 0 20 20" aria-hidden="true"><path d="M2 16L10 3l8 13z" fill="currentColor"/></svg>
+        </button>
+        <div class="navbar__menu-body">
+          <div class="navbar__menu-inner">
+          <ul class="navbar__menu-list">
+            <li><a href="{% url 'jobs:post_job' %}">Post jobs</a></li>
+            <li><a href="#">Manage applicants</a></li>
+            <li><a href="#">Manage posted jobs</a></li>
+          </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <div class="navbar__account">
+    <button type="button" class="navbar__search" aria-label="Search">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true">
+        <circle cx="11" cy="11" r="7"/>
+        <path d="M16.5 16.5L21 21"/>
+      </svg>
+    </button>
+    <span class="navbar__separator" aria-hidden="true"></span>
+    <a href="#" class="navbar__signup">Sign Up</a>
+    <a href="#" class="navbar__signin">Sign In</a>
+  </div>
+</header>
+
+<script>
+  // Navbar dropdowns: click to slide open/closed, one open at a time,
+  // close on outside click, link click or Escape.
+  (function () {
+    var CLOSE_MS = 550;   // slightly longer than the CSS close animation
+    var timers = new WeakMap();
+
+    function setOpen(dropdown, open) {
+      var menu = dropdown.querySelector(".navbar__menu");
+      var trigger = dropdown.querySelector(".navbar__link");
+      var isOpen = dropdown.classList.contains("is-open");
+      if (open === isOpen) return;
+
+      clearTimeout(timers.get(dropdown));
+      trigger.setAttribute("aria-expanded", String(open));
+
+      if (open) {
+        menu.hidden = false;
+        void menu.offsetHeight;                 // let the browser paint the closed state first
+        dropdown.classList.add("is-open");      // ...then animate to open
+      } else {
+        dropdown.classList.remove("is-open");   // animate closed...
+        timers.set(dropdown, setTimeout(function () { menu.hidden = true; }, CLOSE_MS));
+      }
+    }
+
+    document.addEventListener("click", function (e) {
+      var toggle = e.target.closest("[data-dropdown-toggle]");
+      var current = toggle ? toggle.closest("[data-dropdown]") : null;
+
+      document.querySelectorAll("[data-dropdown]").forEach(function (dropdown) {
+        var willOpen = dropdown === current && !dropdown.classList.contains("is-open");
+        setOpen(dropdown, willOpen);
+        if (dropdown === current && !willOpen) dropdown.querySelector(".navbar__link").focus();
+      });
+    });
+
+    document.addEventListener("keydown", function (e) {
+      if (e.key !== "Escape") return;
+      document.querySelectorAll("[data-dropdown]").forEach(function (d) { setOpen(d, false); });
+    });
+  })();
+</script>

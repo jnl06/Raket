@@ -1,5 +1,8 @@
+from django.contrib import messages
 from django.http import Http404
-from django.shortcuts import render
+from django.shortcuts import redirect, render
+
+from .forms import JobForm
 
 
 QUALIFICATIONS = [
@@ -84,11 +87,23 @@ JOBS = [
 
 
 def home(request):
-    return render(request, 'home.html')
+    return render(request, "jobs/home.html")
 
 
 def post_job(request):
-    return render(request, 'jobs/postjob.html')
+    if request.method == "POST":
+        form = JobForm(request.POST)
+        if form.is_valid():
+            job = form.save(commit=False)
+            if request.user.is_authenticated:
+                job.posted_by = request.user
+            job.save()
+            messages.success(request, "Your job was posted successfully!")
+            return redirect("jobs:home")
+    else:
+        form = JobForm()
+
+    return render(request, "jobs/postjob.html", {"form": form})
 
 
 def job_list(request):
