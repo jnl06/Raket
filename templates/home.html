@@ -1,0 +1,138 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Raket</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Source+Serif+4:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/jobs.css' %}">
+  <link rel="stylesheet" href="{% static 'css/hero.css' %}">
+</head>
+<body>
+
+  <nav class="navbar">
+    <a href="{% url 'jobs:home' %}" class="logo">
+      <img src="{% static 'image/raket_logo.png' %}" alt="Raket logo">
+    </a>
+
+    <ul class="nav-links">
+      <li><a href="{% url 'jobs:home' %}" class="active">Home</a></li>
+
+      <li class="has-dropdown">
+        <a href="#" class="dropdown-toggle">For workers <span class="caret">▾</span></a>
+        <ul class="dropdown-menu">
+          <li><a href="{% url 'jobs:job_list' %}">Find jobs</a></li>
+          <li><a href="{% url 'jobs:job_list' %}?sort=rate_high">Highest paying jobs</a></li>
+          <li><a href="{% url 'jobs:job_list' %}?type=Part-time">Part-time jobs</a></li>
+          <li><a href="{% url 'jobs:job_list' %}?type=Full-time">Full-time jobs</a></li>
+        </ul>
+      </li>
+
+      <li class="has-dropdown">
+        <a href="#" class="dropdown-toggle">For households <span class="caret">▾</span></a>
+        <ul class="dropdown-menu">
+          <li><a href="{% url 'jobs:post_job' %}">Post a job</a></li>
+          <li><a href="{% url 'jobs:job_list' %}?q=Babysitter">Find a babysitter</a></li>
+          <li><a href="{% url 'jobs:job_list' %}?q=House%20cleaning">Find house cleaning</a></li>
+        </ul>
+      </li>
+    </ul>
+
+    <div class="auth">
+      <a href="{% url 'jobs:job_list' %}" class="nav-search" aria-label="Search jobs">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="7"/>
+          <path d="M20 20l-4-4"/>
+        </svg>
+      </a>
+
+      <span class="nav-divider"></span>
+
+      {# TODO: palitan ang # ng link sa Sign Up at Sign In page ng kasama ko #}
+      <a href="#" class="sign-up">Sign Up</a>
+      <a href="#" class="sign-in">Sign In</a>
+    </div>
+
+    <button type="button" class="nav-toggle" aria-label="Open menu">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M4 7h16M4 12h16M4 17h16"/>
+      </svg>
+    </button>
+  </nav>
+
+
+  <section class="hero">
+
+    <div class="hero-text">
+      <p class="hero-eyebrow">Spread the word about Raket!</p>
+
+      <h1>Sign up to get started!</h1>
+
+      <p class="hero-description">
+        Find jobs, create trackable resumes and enrich your applications.
+        Carefully crafted for helping the needs of different industries.
+        You sign up in the top right corner.
+      </p>
+
+      <form class="hero-search" action="{% url 'jobs:job_list' %}" method="get">
+        <div class="hero-search-box">
+          <input type="text" name="q" aria-label="Search jobs">
+
+          <button type="submit" aria-label="Search">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="7"/>
+              <path d="M20 20l-4-4"/>
+            </svg>
+          </button>
+        </div>
+
+        <button type="submit" class="btn-primary">Search</button>
+        <a href="{% url 'jobs:post_job' %}" class="btn-primary btn-post">POST A JOB</a>
+      </form>
+
+      <h2 class="hero-popular">Popular searches</h2>
+
+      <div class="hero-tags">
+        <a href="{% url 'jobs:job_list' %}?q=House%20cleaning" class="hero-tag">House cleaning</a>
+        <a href="{% url 'jobs:job_list' %}?q=Babysitter" class="hero-tag">Babysitter</a>
+        <a href="{% url 'jobs:job_list' %}?q=Cook" class="hero-tag">Cook/kitchen helper</a>
+      </div>
+    </div>
+
+    <div class="hero-art">
+      <div class="hero-circle"></div>
+      <img src="{% static 'image/hero.png' %}" alt="Raket workers illustration">
+    </div>
+
+  </section>
+
+
+  <script>
+    const navbar = document.querySelector(".navbar");
+
+    // mobile menu
+    document.querySelector(".nav-toggle").addEventListener("click", function () {
+      navbar.classList.toggle("menu-open");
+    });
+
+    // dropdowns (click for touch screens, hover works on desktop)
+    document.querySelectorAll(".dropdown-toggle").forEach(function (toggle) {
+      toggle.addEventListener("click", function (event) {
+        event.preventDefault();
+        toggle.parentElement.classList.toggle("open");
+      });
+    });
+
+    // close dropdowns when clicking elsewhere
+    document.addEventListener("click", function (event) {
+      if (!event.target.closest(".has-dropdown")) {
+        document.querySelectorAll(".has-dropdown.open").forEach(function (item) {
+          item.classList.remove("open");
+        });
+      }
+    });
+  </script>
+
+</body>
+</html>
