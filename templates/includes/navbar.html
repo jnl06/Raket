@@ -21,10 +21,14 @@
           <span>For workers</span>
           <svg width="15" height="15" viewBox="0 0 20 20" aria-hidden="true"><path d="M2 16L10 3l8 13z" fill="currentColor"/></svg>
         </button>
-        <ul class="navbar__menu-list">
-          <li><a href="#">Find jobs</a></li>
-          <li><a href="#">Manage applied jobs</a></li>
-        </ul>
+        <div class="navbar__menu-body">
+          <div class="navbar__menu-inner">
+          <ul class="navbar__menu-list">
+            <li><a href="#">Find jobs</a></li>
+            <li><a href="#">Manage applied jobs</a></li>
+          </ul>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -41,11 +45,15 @@
           <span>For households</span>
           <svg width="15" height="15" viewBox="0 0 20 20" aria-hidden="true"><path d="M2 16L10 3l8 13z" fill="currentColor"/></svg>
         </button>
-        <ul class="navbar__menu-list">
-          <li><a href="{% url 'jobs:post_job' %}">Post jobs</a></li>
-          <li><a href="#">Manage applicants</a></li>
-          <li><a href="#">Manage posted jobs</a></li>
-        </ul>
+        <div class="navbar__menu-body">
+          <div class="navbar__menu-inner">
+          <ul class="navbar__menu-list">
+            <li><a href="{% url 'jobs:post_job' %}">Post jobs</a></li>
+            <li><a href="#">Manage applicants</a></li>
+            <li><a href="#">Manage posted jobs</a></li>
+          </ul>
+          </div>
+        </div>
       </div>
     </div>
   </nav>
@@ -64,28 +72,45 @@
 </header>
 
 <script>
-  // Navbar dropdowns: click to open/close, one open at a time,
-  // close on outside click or Escape.
-  document.addEventListener("click", function (e) {
-    var toggle = e.target.closest("[data-dropdown-toggle]");
-    var current = toggle ? toggle.closest("[data-dropdown]") : null;
+  // Navbar dropdowns: click to slide open/closed, one open at a time,
+  // close on outside click, link click or Escape.
+  (function () {
+    var CLOSE_MS = 550;   // slightly longer than the CSS close animation
+    var timers = new WeakMap();
 
-    document.querySelectorAll("[data-dropdown]").forEach(function (dropdown) {
+    function setOpen(dropdown, open) {
       var menu = dropdown.querySelector(".navbar__menu");
       var trigger = dropdown.querySelector(".navbar__link");
-      var open = false;
-      if (dropdown === current) open = menu.hidden; // toggle the clicked one
-      menu.hidden = !open;
-      trigger.setAttribute("aria-expanded", String(open));
-      if (dropdown === current && !open) trigger.focus();
-    });
-  });
+      var isOpen = dropdown.classList.contains("is-open");
+      if (open === isOpen) return;
 
-  document.addEventListener("keydown", function (e) {
-    if (e.key !== "Escape") return;
-    document.querySelectorAll("[data-dropdown]").forEach(function (dropdown) {
-      dropdown.querySelector(".navbar__menu").hidden = true;
-      dropdown.querySelector(".navbar__link").setAttribute("aria-expanded", "false");
+      clearTimeout(timers.get(dropdown));
+      trigger.setAttribute("aria-expanded", String(open));
+
+      if (open) {
+        menu.hidden = false;
+        void menu.offsetHeight;                 // let the browser paint the closed state first
+        dropdown.classList.add("is-open");      // ...then animate to open
+      } else {
+        dropdown.classList.remove("is-open");   // animate closed...
+        timers.set(dropdown, setTimeout(function () { menu.hidden = true; }, CLOSE_MS));
+      }
+    }
+
+    document.addEventListener("click", function (e) {
+      var toggle = e.target.closest("[data-dropdown-toggle]");
+      var current = toggle ? toggle.closest("[data-dropdown]") : null;
+
+      document.querySelectorAll("[data-dropdown]").forEach(function (dropdown) {
+        var willOpen = dropdown === current && !dropdown.classList.contains("is-open");
+        setOpen(dropdown, willOpen);
+        if (dropdown === current && !willOpen) dropdown.querySelector(".navbar__link").focus();
+      });
     });
-  });
+
+    document.addEventListener("keydown", function (e) {
+      if (e.key !== "Escape") return;
+      document.querySelectorAll("[data-dropdown]").forEach(function (d) { setOpen(d, false); });
+    });
+  })();
 </script>

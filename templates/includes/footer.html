@@ -1,0 +1,40 @@
+{% load static %}
+<footer class="footer">
+  <div class="footer__top">
+    <a href="{% url 'jobs:home' %}" class="footer__brand" aria-label="Raket home">
+      <img src="{% static 'image/raket_logo.png' %}" alt="Raket">
+    </a>
+
+    <section class="footer__col" aria-labelledby="footer-seekers">
+      <h2 class="footer__heading" id="footer-seekers">Job Seekers</h2>
+      <ul class="footer__links">
+        <li><a href="#">Sign in</a></li>
+        <li><a href="#">Sign up</a></li>
+        <li><a href="#">Find Job</a></li>
+      </ul>
+    </section>
+
+    <section class="footer__col" aria-labelledby="footer-households">
+      <h2 class="footer__heading" id="footer-households">Households</h2>
+      <ul class="footer__links">
+        <li><a href="{% url 'jobs:post_job' %}">Start Hiring</a></li>
+        <li><a href="#">Manage job posts</a></li>
+        <li><a href="#">Manage applicants</a></li>
+      </ul>
+    </section>
+
+    <section class="footer__col footer__credits" aria-labelledby="footer-credits">
+      <h2 class="footer__credits-title" id="footer-credits">Made by:</h2>
+      <ul class="footer__names">
+        <li>Pronton, Jonel</li>
+        <li>Jorquia, Jose Maria</li>
+        <li>Chua, Carl Angelo</li>
+        <li>Dalumpienes, Geo</li>
+      </ul>
+    </section>
+  </div>
+
+  <div class="footer__bottom">
+    <p class="footer__copy">&copy; {% now "Y" %} all rights reserved.</p>
+  </div>
+</footer>

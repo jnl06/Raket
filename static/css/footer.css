@@ -1,0 +1,175 @@
+/* ---------- Footer ---------- */
+.footer {
+  background: #fff;
+  border-top: 1px solid #e3e8ef;
+  color: #43536a;
+  font-family: "Crimson Text", Georgia, "Times New Roman", serif;
+}
+
+.footer a { color: inherit; }
+.footer a:hover { color: var(--indigo); }
+
+/* ---- top row: logo | job seekers | households | credits ---- */
+.footer__top {
+  display: grid;
+  grid-template-columns: 416px 272px 304px minmax(0, 240px);
+  height: 214px;
+  padding: 40px 72px 0;
+}
+
+.footer__brand {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 216px;
+  height: 216px;
+  margin: -40px 0 0 -24px;   /* 216px circle starts at the very top, x = 48 */
+}
+.footer__brand img {
+  width: 162px;
+  height: auto;
+  display: block;
+}
+
+.footer__heading {
+  margin: 0 0 12px;
+  font-family: "Source Serif 4", "Source Serif Pro", Georgia, serif;
+  font-weight: 600;
+  font-size: 24px;
+  line-height: 30px;
+  color: #172b46;
+}
+
+.footer__links,
+.footer__names {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.footer__links { display: flex; flex-direction: column; gap: 8px; }
+.footer__links li { font-size: 20px; line-height: 24px; }
+
+/* ---- credits ---- */
+.footer__credits-title {
+  margin: 0 0 8px;
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 24px;
+  color: #172b46;
+}
+.footer__names { display: flex; flex-direction: column; gap: 8px; }
+.footer__names li { font-size: 16px; line-height: 24px; }
+
+/* ---- bottom row: divider + copyright ---- */
+.footer__bottom {
+  display: flex;
+  align-items: center;
+  height: 65px;
+  margin: 0 72px;
+  border-top: 1px solid #e3e8ef;
+}
+.footer__copy {
+  margin: 0;
+  font-size: 16px;
+  line-height: 24px;
+  color: #637086;
+}
+
+/* ---------- Tablet ---------- */
+@media (max-width: 1100px) {
+  .footer__top {
+    grid-template-columns: 160px repeat(3, minmax(0, 1fr));
+    column-gap: 24px;
+    height: auto;
+    padding: 32px 32px 32px;
+  }
+  .footer__brand { width: 160px; height: auto; margin: 0; }
+  .footer__brand img { width: 140px; }
+  .footer__bottom { margin: 0 32px; }
+}
+
+/* ---------- Mobile ---------- */
+@media (max-width: 640px) {
+  .footer {
+    background: #e3e8ef;
+    border-top: none;
+    font-family: "Inter", Arial, sans-serif;
+  }
+
+  .footer__top {
+    grid-template-columns: 113px minmax(0, 1fr) minmax(0, 1fr);
+    column-gap: 0;
+    align-items: start;
+    padding: 24px 9px 0;
+  }
+
+  .footer__brand {
+    width: 113px;
+    height: auto;
+    margin: 0 0 0 1px;
+  }
+  .footer__brand img { width: 96px; }
+
+  .footer__col {
+    min-height: 56px;
+    padding-left: 22px;
+    border-left: 1px solid rgba(122, 130, 151, 0.22);
+  }
+  .footer__heading {
+    margin: 0 0 4px;
+    font-family: "Inter", Arial, sans-serif;
+    font-weight: 600;
+    font-size: 13px;
+    line-height: 22px;
+    color: #000;
+  }
+  .footer__links { gap: 0; }
+  .footer__links li { font-size: 12px; line-height: 18px; }
+
+  /* credits drop onto their own row between two hairlines */
+  .footer__credits {
+    grid-column: 1 / -1;
+    min-height: 0;
+    margin-top: 16px;
+    padding: 14px 5px 18px;
+    border-left: none;
+    border-top: 1px solid rgba(122, 130, 151, 0.22);
+  }
+  .footer__credits-title {
+    margin: 0 0 8px;
+    font-family: "Inter", Arial, sans-serif;
+    font-size: 12px;
+    line-height: 22px;
+    color: #000;
+  }
+  /* two names per row: Pronton | Chua  /  Jorquia | Dalumpienes */
+  .footer__names {
+    display: grid;
+    grid-template-rows: repeat(2, auto);
+    grid-auto-flow: column;
+    justify-content: start;
+    column-gap: 12px;
+    row-gap: 6px;
+  }
+  .footer__names li { font-size: 11px; line-height: 16px; }
+  .footer__names li:nth-child(n + 3)::before {
+    content: "";
+    display: inline-block;
+    width: 1px;
+    height: 10px;
+    margin-right: 12px;
+    vertical-align: -1px;
+    background: #43536a;
+  }
+
+  .footer__bottom {
+    margin: 0 9px;
+    height: 56px;
+    border-top: 1px solid rgba(122, 130, 151, 0.22);
+  }
+  .footer__copy {
+    padding-left: 5px;
+    font-size: 11px;
+    color: #637086;
+  }
+}
