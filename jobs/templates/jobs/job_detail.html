@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ job.title }} - Raket{% endblock %}
+
+{% block extra_head %}
+  <link rel="stylesheet" href="{% static 'css/jobs.css' %}?v=3">
+  <link rel="stylesheet" href="{% static 'css/job_detail.css' %}?v=3">
+{% endblock %}
+
+{% block content %}
+<div class="container detail">
+
+  <!-- Breadcrumb -->
+  <p class="breadcrumb">
+    <a href="{% url 'jobs:home' %}">Home</a>
+    <span>/</span>
+    <a href="{% url 'jobs:job_list' %}">Job Vacancies</a>
+    <span>/</span>
+    <strong>Job Details</strong>
+  </p>
+
+  <!-- Title -->
+  <header class="detail-head">
+    <div>
+      <p class="category">{{ job.category }}</p>
+      <h1>{{ job.title }}</h1>
+      <p class="engagement">Typical engagement: {{ job.engagement }}</p>
+    </div>
+
+    <span class="roles-open">{{ job.roles_open }} Roles Open</span>
+  </header>
+
+
+  <div class="detail-layout">
+
+    <!-- Left column -->
+    <div class="detail-main">
+
+      <section class="card">
+        <h2>Job Description</h2>
+
+        <h3>Basic Qualifications</h3>
+
+        <ul class="qualifications">
+          {% for item in job.qualifications %}
+          <li>{{ item }}</li>
+          {% endfor %}
+        </ul>
+
+        <div class="work-location">
+          <strong>Work Location :</strong>
+          <span>{{ job.location }}</span>
+        </div>
+      </section>
+
+      <section class="card">
+        <h3 class="apply-title">How to Apply</h3>
+        <p class="apply-text">{{ job.how_to_apply }}</p>
+      </section>
+
+    </div>
+
+
+    <!-- Right column -->
+    <aside class="detail-side">
+
+      <section class="card overview">
+        <h2>Job Overview</h2>
+
+        <div class="overview-item">
+          <p class="label">Experience</p>
+          <p class="value">{{ job.experience }}</p>
+        </div>
+
+        <div class="overview-item">
+          <p class="label">Location</p>
+          <p class="value">{{ job.city }}</p>
+        </div>
+
+        <div class="overview-item">
+          <p class="label">Offered Salary</p>
+          <p class="value salary">₱{{ job.salary_min }} - {{ job.salary_max }} a day</p>
+        </div>
+
+        <div class="overview-item">
+          <p class="label">Industry</p>
+          <p class="value">{{ job.industry }}</p>
+        </div>
+
+        <div class="overview-item">
+          <p class="label">Date Posted</p>
+          <p class="value">{{ job.date_posted }}</p>
+        </div>
+
+        <a href="#" class="apply-now">Apply Now</a>
+      </section>
+
+      <a href="{% url 'jobs:job_list' %}" class="back-btn">Back to Jobs</a>
+
+    </aside>
+
+  </div>
+
+</div>
+{% endblock %}
