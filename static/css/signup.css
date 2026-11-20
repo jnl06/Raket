@@ -1,0 +1,248 @@
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Georgia, serif;
+    background: #ffffff;
+    min-height: 100vh;
+}
+
+.signup-container {
+    display: flex;
+    width: 100%;
+    min-height: 100vh;
+}
+
+/* LEFT PANEL */
+.signup-left {
+    width: 39%;
+    min-height: 100vh;
+    background: #eff5e6;
+    padding: 140px 36px 40px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+.raket-logo {
+    position: absolute;
+    top: 23px;
+    left: 23px;
+    width: 75px;
+    height: 75px;
+    object-fit: contain;
+    border-radius: 50%;
+}
+
+.left-content h2 {
+    color: #202d69;
+    font-size: 21px;
+    line-height: 1.35;
+    font-weight: bold;
+    margin-bottom: 42px;
+}
+
+.left-info {
+    border-top: 1px solid #dce5d2;
+    padding-top: 18px;
+}
+
+.left-info p {
+    color: #33452b;
+    font-size: 10px;
+    margin-bottom: 8px;
+}
+
+.left-info span {
+    display: block;
+    color: #52634c;
+    font-size: 9px;
+    margin-bottom: 22px;
+}
+
+/* RIGHT PANEL */
+.signup-right {
+    width: 61%;
+    min-height: 100vh;
+    background: #ffffff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 35px 25px;
+}
+
+.signup-form-container {
+    width: 100%;
+    max-width: 270px;
+}
+
+.signup-form-container h1 {
+    color: #263653;
+    font-size: 21px;
+    text-align: center;
+    margin-bottom: 4px;
+}
+
+.subtitle {
+    color: #718096;
+    font-size: 9px;
+    text-align: center;
+    margin-bottom: 18px;
+}
+
+/* FORM FIELDS */
+.form-group {
+    margin-bottom: 10px;
+}
+
+.form-group label {
+    display: block;
+    color: #263653;
+    font-size: 9px;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.form-group input,
+.form-group select {
+    width: 100%;
+    height: 26px;
+    padding: 5px 9px;
+    border: 1px solid #dce2eb;
+    border-radius: 5px;
+    outline: none;
+    background: #ffffff;
+    color: #263653;
+    font-family: Georgia, serif;
+    font-size: 9px;
+}
+
+.form-group input:focus {
+    border-color: #202d69;
+}
+
+/* ROLE BUTTONS */
+.role-buttons {
+    display: flex;
+    width: 100%;
+    height: 27px;
+    background: #f1f3f7;
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+.role-btn {
+    width: 50%;
+    border: none;
+    background: transparent;
+    color: #52617b;
+    font-family: Georgia, serif;
+    font-size: 9px;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+}
+
+.role-btn.active {
+    background: #202d69;
+    color: #ffffff;
+    border-radius: 5px;
+}
+
+.role-btn:hover:not(.active) {
+    background: #e5e9f0;
+}
+
+/* TERMS */
+.terms {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin: 12px 0;
+}
+
+.terms input {
+    width: 11px;
+    height: 11px;
+    cursor: pointer;
+}
+
+.terms label {
+    color: #52617b;
+    font-size: 8px;
+}
+
+.terms a {
+    color: #202d69;
+    font-weight: bold;
+}
+
+/* SIGN UP BUTTON */
+.signup-btn {
+    width: 100%;
+    padding: 9px;
+    background: #202d69;
+    color: #ffffff;
+    border: none;
+    border-radius: 6px;
+    font-family: Georgia, serif;
+    font-size: 10px;
+    cursor: pointer;
+    margin-top: 5px;
+}
+
+.signup-btn:hover {
+    background: #17204d;
+}
+
+/* LOGIN LINK */
+.login-link {
+    text-align: center;
+    color: #718096;
+    font-size: 9px;
+    margin-top: 14px;
+}
+
+.login-link a {
+    color: #202d69;
+    font-weight: bold;
+    text-decoration: underline;
+}
+
+/* ERROR MESSAGE */
+.error-message {
+    background: #ffeaea;
+    color: #b42318;
+    padding: 10px;
+    border-radius: 5px;
+    font-size: 10px;
+    margin-bottom: 12px;
+}
+
+/* MOBILE */
+@media (max-width: 768px) {
+    .signup-container {
+        flex-direction: column;
+    }
+
+    .signup-left,
+    .signup-right {
+        width: 100%;
+    }
+
+    .signup-left {
+        min-height: 400px;
+        padding: 140px 30px 30px;
+    }
+
+    .signup-right {
+        padding: 45px 25px;
+    }
+
+    .signup-form-container {
+        max-width: 350px;
+    }
+}
