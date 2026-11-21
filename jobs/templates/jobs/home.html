@@ -1,8 +1,101 @@
-{% extends "base.html" %}
 
-{% block title %}Raket - Find your next gig{% endblock %}
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Home | Raket{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/hero.css' %}?v=3">
+{% endblock %}
 
 {% block content %}
-  <h1>Welcome to Raket</h1>
-  <p>Job listings will show up here.</p>
+<section class="hero">
+  <div class="hero-text">
+    <p class="hero-eyebrow">Spread the word about Raket!</p>
+
+    <h1>Sign up to get started!</h1>
+
+    <p class="hero-description">
+      Find jobs, create trackable resumes and enrich your applications.
+      Carefully crafted for helping the needs of different industries.
+      You sign up in the top right corner.
+    </p>
+
+    <form
+      class="hero-search"
+      action="{% url 'jobs:job_list' %}"
+      method="get"
+      role="search"
+    >
+      <div class="hero-search-box">
+        <input
+          type="search"
+          name="q"
+          aria-label="Search jobs"
+        >
+
+        <button type="submit" aria-label="Search jobs">
+          <svg
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.8"
+            stroke-linecap="round"
+            aria-hidden="true"
+          >
+            <circle cx="11" cy="11" r="7"></circle>
+            <path d="m16 16 5 5"></path>
+          </svg>
+        </button>
+      </div>
+
+      <button type="submit" class="btn-primary">
+        Search
+      </button>
+
+      <a
+        href="{% url 'jobs:post_job' %}"
+        class="btn-primary btn-post"
+      >
+        POST A JOB
+      </a>
+    </form>
+
+    <h2 class="hero-popular">Popular searches</h2>
+
+    <div class="hero-tags">
+      <a
+        href="{% url 'jobs:job_list' %}?q=House%20cleaning"
+        class="hero-tag"
+      >
+        House cleaning
+      </a>
+
+      <a
+        href="{% url 'jobs:job_list' %}?q=Babysitter"
+        class="hero-tag"
+      >
+        Babysitter
+      </a>
+
+      <a
+        href="{% url 'jobs:job_list' %}?q=Cook"
+        class="hero-tag"
+      >
+        Cook/kitchen helper
+      </a>
+    </div>
+  </div>
+
+  <div class="hero-art">
+    <div class="hero-circle" aria-hidden="true"></div>
+
+    <img
+      src="{% static 'image/hero.png' %}"
+      alt="Illustration of Raket workers from different industries"
+    >
+  </div>
+</section>
 {% endblock %}
