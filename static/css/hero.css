@@ -1,90 +1,9 @@
-/* ---------- Navbar additions (dropdowns, mobile menu) ---------- */
-
-.navbar {
-  position: relative;
-  z-index: 30;
-}
-
-.has-dropdown {
-  position: relative;
-}
-
-.caret {
-  display: inline-block;
-
-  transition: transform 0.2s;
-}
-
-.has-dropdown:hover .caret,
-.has-dropdown.open .caret {
-  transform: rotate(180deg);
-}
-
-.dropdown-menu {
-  display: none;
-
-  position: absolute;
-  top: 100%;
-  left: -16px;
-  z-index: 40;
-
-  min-width: 230px;
-  padding: 8px;
-
+body {
   background: #fff;
-  border: 1px solid var(--border);
-  border-radius: 12px;
-
-  box-shadow: 0 10px 30px rgba(16, 24, 40, 0.12);
-
-  list-style: none;
-}
-
-.has-dropdown:hover .dropdown-menu,
-.has-dropdown:focus-within .dropdown-menu,
-.has-dropdown.open .dropdown-menu {
-  display: block;
-}
-
-.nav-links .dropdown-menu a {
-  padding: 11px 14px;
-
-  border-radius: 8px;
-
-  font-size: 14px;
-  font-weight: 500;
-}
-
-.nav-links .dropdown-menu a:hover {
-  background: var(--indigo-light);
-  color: var(--indigo);
-}
-
-a.nav-search {
-  color: var(--navy);
-}
-
-.nav-toggle {
-  display: none;
-
-  width: 38px;
-  height: 38px;
-
-  background: #F3F3F6;
-  border: 0;
-  border-radius: 8px;
-
-  color: var(--navy);
-
-  cursor: pointer;
 }
 
 
 /* ---------- Hero ---------- */
-
-body {
-  background: #fff;
-}
 
 .hero {
   display: grid;
@@ -92,8 +11,8 @@ body {
   align-items: center;
   gap: 40px;
 
-  min-height: calc(100vh - 84px);
-  padding: 20px 4vw 60px 60px;
+  min-height: calc(100vh - 120px);
+  padding: 20px 4vw 60px 64px;
 
   background: #fff;
 }
@@ -236,23 +155,20 @@ body {
 /* ---------- Hero image ---------- */
 
 .hero-art {
-  /* ===== DITO MO BABAGUHIN ANG LAHAT ===== */
 
   /* Buong grupo (bilog + larawan, sabay gumagalaw) */
-  --group-x: -40px;                          /* + kanan, - kaliwa */
+  --group-x: -40px;                        /* + kanan, - kaliwa */
   --group-y: 0px;                          /* + baba, - taas */
 
   /* Bilog */
   --circle: clamp(170px, 38vw, 470px);     /* laki ng bilog */
-  --circle-x: 0%;                          /* + kanan, - kaliwa */
-  --circle-y: 0%;                          /* + baba, - taas */
 
-    /* Larawan */
-  --img-scale: -50;                          /* laki ng larawan: 1 = kasinlapad ng bilog */
-  --img-x: -20px;                          /* larawan: + kanan, - kaliwa */
-  --img-y: 30px;                           /* larawan: + baba, - taas */
+  /* Larawan (% ng bilog) */
+  --img-w: 100%;                           /* laki: 80% maliit, 100% kasinlapad ng bilog, 120% malaki */
+  --img-left: -3.6%;                       /* - kaliwa, + kanan */
+  --img-bottom: -5.3%;                     /* - baba, + taas */
 
-  /* ======================================= */
+  /* ================================================ */
 
   position: relative;
 
@@ -267,32 +183,23 @@ body {
 /* navy circle */
 .hero-circle {
   position: absolute;
-  inset: 0;
+  top: 0;
+  left: 0;
+
+  width: 100%;
+  height: 100%;
 
   background: #111B43;
   border-radius: 50%;
-
-  transform: translate(var(--circle-x), var(--circle-y));
 }
 
 /* illustration */
 .hero-art img {
   position: absolute;
-  left: var(--img-x);
-  bottom: var(--img-y);
+  left: var(--img-left);
+  bottom: var(--img-bottom);
 
-  width: var(--img-size);
-  height: auto;
-  max-width: none;
-}
-
-/* illustration: kasinlapad ng bilog, bahagyang lumalabas sa ibaba */
-.hero-art img {
-  position: absolute;
-  left: -3.6%;
-  bottom: -5.3%;
-
-  width: 100%;
+  width: var(--img-w);
   height: auto;
   max-width: none;
 }
@@ -304,6 +211,7 @@ body {
   .hero {
     grid-template-columns: 1fr;
 
+    min-height: auto;
     padding: 30px 24px 80px;
   }
 
@@ -313,6 +221,7 @@ body {
 
   .hero-art {
     --circle: min(86vw, 420px);
+    --group-x: 0px;
 
     margin-top: 30px;
 
@@ -323,70 +232,7 @@ body {
 
 /* ---------- Mobile ---------- */
 
-@media (max-width: 800px) {
-  .navbar {
-    padding: 0 20px;
-  }
-
-  .nav-toggle {
-    display: grid;
-    place-items: center;
-
-    margin-left: 14px;
-  }
-
-  /* menu panel */
-  .navbar.menu-open .nav-links {
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
-    gap: 0;
-
-    position: absolute;
-    top: 100%;
-    left: 0;
-    right: 0;
-
-    margin-left: 0;
-    padding: 8px 20px 16px;
-
-    background: #fff;
-    border-bottom: 1px solid var(--border);
-
-    box-shadow: 0 10px 20px rgba(16, 24, 40, 0.08);
-  }
-
-  .navbar.menu-open .nav-links > li > a {
-    padding: 14px 0;
-  }
-
-  .navbar.menu-open .nav-links a.active::after {
-    display: none;
-  }
-
-  .navbar.menu-open .dropdown-menu {
-    position: static;
-
-    padding: 0 0 6px 14px;
-
-    border: 0;
-    box-shadow: none;
-  }
-}
-
 @media (max-width: 520px) {
-  .auth {
-    gap: 12px;
-  }
-
-  .nav-divider {
-    display: none;
-  }
-
-  .sign-in {
-    padding: 10px 16px;
-  }
-
   .hero-text h1 {
     font-size: 32px;
   }

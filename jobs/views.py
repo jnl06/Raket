@@ -138,7 +138,7 @@ def job_list(request):
         'durations': ['1 week', '2 weeks', '1 month'],
     }
 
-    return render(request, 'jobs.html', context)
+    return render(request, 'jobs/jobs.html', context)
 
 
 def job_detail(request, pk):
@@ -147,4 +147,4 @@ def job_detail(request, pk):
     if job is None:
         raise Http404('Job not found')
 
-    return render(request, 'job_detail.html', {'job': job})
+    return render(request, 'jobs/job_detail.html', {'job': job})
