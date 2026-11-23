@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Sign in - Raket{% endblock %}
+
+{% block extra_head %}
+  <link rel="stylesheet" href="{% static 'css/auth.css' %}?v=1">
+{% endblock %}
+
+{% block content %}
+<section class="auth">
+  <div class="auth-card">
+    <p class="auth-eyebrow">WELCOME BACK</p>
+    <h1>Sign in to Raket</h1>
+    <p class="auth-sub">Find short-term jobs or manage the ones you've posted.</p>
+
+    <form data-auth="signin" data-next="{{ next }}" novalidate>
+      <div class="auth-alert" role="alert" hidden data-alert></div>
+
+      <div class="auth-field">
+        <label for="email">Email address</label>
+        <span class="auth-input"><input type="email" id="email" name="email" autocomplete="email" placeholder="you@example.com" required autofocus></span>
+        <p class="auth-error" data-error-for="email"></p>
+      </div>
+
+      <div class="auth-field">
+        <label for="password">Password</label>
+        <span class="auth-input auth-input--password">
+          <input type="password" id="password" name="password" autocomplete="current-password" required>
+          <button type="button" class="auth-toggle" data-toggle-password aria-label="Show password">Show</button>
+        </span>
+        <p class="auth-error" data-error-for="password"></p>
+      </div>
+
+      <div class="auth-row">
+        <label class="auth-check"><input type="checkbox" name="remember_me"> Keep me signed in</label>
+        <a href="{% url 'accounts:forgot_password' %}" class="auth-link">Forgot password?</a>
+      </div>
+
+      <button type="submit" class="auth-submit" data-busy-label="Signing in…">Sign In</button>
+    </form>
+
+    <p class="auth-foot">New to Raket? <a class="auth-link" href="{% url 'accounts:signup' %}{% if next %}?next={{ next|urlencode }}{% endif %}">Create an account</a></p>
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}<script src="{% static 'js/auth.js' %}?v=1"></script>{% endblock %}

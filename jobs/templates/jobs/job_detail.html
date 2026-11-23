@@ -23,12 +23,12 @@
   <!-- Title -->
   <header class="detail-head">
     <div>
-      <p class="category">{{ job.category }}</p>
+      <p class="category">{{ job.get_category_display }}</p>
       <h1>{{ job.title }}</h1>
-      <p class="engagement">Typical engagement: {{ job.engagement }}</p>
+      <p class="engagement">{{ job.get_work_schedule_display }}</p>
     </div>
 
-    <span class="roles-open">{{ job.roles_open }} Roles Open</span>
+    <span class="roles-open">{{ job.number_of_workers }} Worker{{ job.number_of_workers|pluralize }} Needed</span>
   </header>
 
 
@@ -40,16 +40,13 @@
       <section class="card">
         <h2>Job Description</h2>
 
-        <h3>Basic Qualifications</h3>
-
-        <ul class="qualifications">
-          {% for item in job.qualifications %}
-          <li>{{ item }}</li>
-          {% endfor %}
-        </ul>
-
+        <p>{{ job.description }}</p>
+        {% if job.requirements %}
+          <h3>Requirements</h3>
+          <p>{{ job.requirements|linebreaksbr }}</p>
+        {% endif %}
         <div class="work-location">
-          <strong>Work Location :</strong>
+          <strong>Work Location:</strong>
           <span>{{ job.location }}</span>
         </div>
       </section>
@@ -70,30 +67,30 @@
 
         <div class="overview-item">
           <p class="label">Experience</p>
-          <p class="value">{{ job.experience }}</p>
+          <p class="value">Not specified</p>
         </div>
 
         <div class="overview-item">
           <p class="label">Location</p>
-          <p class="value">{{ job.city }}</p>
+          <p class="value">{{ job.location }}</p>
         </div>
 
         <div class="overview-item">
           <p class="label">Offered Salary</p>
-          <p class="value salary">₱{{ job.salary_min }} - {{ job.salary_max }} a day</p>
+          <p class="value salary">₱{{ job.estimated_payment }}</p>
         </div>
 
         <div class="overview-item">
           <p class="label">Industry</p>
-          <p class="value">{{ job.industry }}</p>
+          <p class="value">{{ job.get_category_display }}</p>
         </div>
 
         <div class="overview-item">
           <p class="label">Date Posted</p>
-          <p class="value">{{ job.date_posted }}</p>
+          <p class="value">{{ job.created_at|date:"F j, Y" }}</p>
         </div>
 
-        <a href="#" class="apply-now">Apply Now</a>
+        
       </section>
 
       <a href="{% url 'jobs:job_list' %}" class="back-btn">Back to Jobs</a>

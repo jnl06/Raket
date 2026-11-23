@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Page not found - Raket{% endblock %}
+
+{% block extra_head %}
+  <link rel="stylesheet" href="{% static 'css/auth.css' %}?v=1">
+{% endblock %}
+
+{% block content %}
+<section class="notfound">
+  <p class="auth-eyebrow">ERROR 404</p>
+  <h1>We couldn't find that page</h1>
+  <p class="auth-sub">The job may have been closed or removed, or the link is mistyped.</p>
+  <a href="{% url 'jobs:job_list' %}" class="auth-submit notfound__btn">Browse open jobs</a>
+</section>
+{% endblock %}

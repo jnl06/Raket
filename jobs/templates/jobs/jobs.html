@@ -4,142 +4,65 @@
 {% block title %}Find Jobs - Raket{% endblock %}
 
 {% block extra_head %}
-  <link rel="stylesheet" href="{% static 'css/jobs.css' %}?v=3">
+  <link rel="stylesheet" href="{% static 'css/jobs.css' %}?v=4">
 {% endblock %}
 
 {% block content %}
-
-<!-- One form for the search, filters and sort -->
-<form method="get" onchange="this.submit()">
-
-  <header class="page-head">
-    <div class="container">
-
-      <div class="head-top">
-        <div>
-          <p class="eyebrow">OPPORTUNITIES THAT FIT YOU</p>
-          <h1>Find your next job</h1>
-          <p class="subtitle">Explore available opportunities and find the right fit for you.</p>
-        </div>
-
-        <a href="{% url 'jobs:post_job' %}" class="btn-outline">Post a job</a>
+<header class="page-head">
+  <div class="container">
+    <div class="head-top">
+      <div>
+        <p class="eyebrow">OPPORTUNITIES THAT FIT YOU</p>
+        <h1>Find your next job</h1>
+        <p class="subtitle">Explore available opportunities and find the right fit for you.</p>
       </div>
-
-      <div class="search-row">
-        <input type="text" name="q" value="{{ q }}" placeholder="Job Description">
-        <button type="submit" class="btn-primary">Search jobs</button>
-      </div>
-
+      <a href="{% url 'jobs:post_job' %}" class="btn-outline">Post a job</a>
     </div>
-  </header>
+    <form method="get" class="search-row">
+      <input type="text" name="q" value="{{ q }}" placeholder="Search job title, description, or location">
+      <input type="hidden" name="sort" value="{{ sort }}">
+      <button type="submit" class="btn-primary">Search jobs</button>
+    </form>
+  </div>
+</header>
 
-
-  <div class="container layout">
-
-    <!-- Filters -->
-    <aside class="filters">
-
-      <div class="filters-head">
-        <span>Filters</span>
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="#3A31A5">
-          <path d="M3 4h18l-7 8v6l-4 2v-8z"/>
-        </svg>
+<div class="container layout">
+  <section class="jobs">
+    <div class="jobs-head">
+      <div>
+        <h2>Available jobs</h2>
+        <p class="count">Showing {{ total }} job{{ total|pluralize }}</p>
       </div>
-
-      <div class="filter-group">
-        <p class="filter-title">Employment type</p>
-
-        <label class="option">
-          <input type="radio" name="type" value="all" {% if job_type == 'all' %}checked{% endif %}>
-          All types
-        </label>
-
-        <label class="option">
-          <input type="radio" name="type" value="Full-time" {% if job_type == 'Full-time' %}checked{% endif %}>
-          Full-time
-        </label>
-
-        <label class="option">
-          <input type="radio" name="type" value="Part-time" {% if job_type == 'Part-time' %}checked{% endif %}>
-          Part-time
-        </label>
-      </div>
-
-      <div class="filter-group">
-        <p class="filter-title">Duration</p>
-
-        <select name="duration" class="select">
-          <option value="all">All durations</option>
-          {% for d in durations %}
-          <option value="{{ d }}" {% if d == duration %}selected{% endif %}>{{ d }}</option>
-          {% endfor %}
+      <form method="get" class="sort">
+        <input type="hidden" name="q" value="{{ q }}">
+        <label for="sort">Sort by</label>
+        <select id="sort" name="sort" class="select" onchange="this.form.submit()">
+          <option value="newest" {% if sort == "newest" %}selected{% endif %}>Newest</option>
+          <option value="payment_high" {% if sort == "payment_high" %}selected{% endif %}>Highest payment</option>
+          <option value="payment_low" {% if sort == "payment_low" %}selected{% endif %}>Lowest payment</option>
         </select>
-      </div>
+      </form>
+    </div>
 
-      <div class="filter-group">
-        <a href="{% url 'jobs:job_list' %}" class="reset">Reset filters</a>
-        <p class="hint">Refine your search to find the right opportunity.</p>
-      </div>
-
-    </aside>
-
-
-    <!-- Job list -->
-    <section class="jobs">
-
-      <div class="jobs-head">
-        <div>
-          <h2>Available jobs</h2>
-          <p class="count">Showing {{ jobs|length }} job{{ jobs|length|pluralize }}</p>
-        </div>
-
-        <div class="sort">
-          <span>Sort by</span>
-
-          <select name="sort" class="select">
-            <option value="relevance" {% if sort == 'relevance' %}selected{% endif %}>Relevance</option>
-            <option value="rate_high" {% if sort == 'rate_high' %}selected{% endif %}>Highest rate</option>
-            <option value="rate_low" {% if sort == 'rate_low' %}selected{% endif %}>Lowest rate</option>
-          </select>
-        </div>
-      </div>
-
-      {% for job in jobs %}
+    {% for job in jobs %}
       <article class="job-card">
-
-        <div class="job-icon">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3A31A5" stroke-width="1.8">
-            <circle cx="12" cy="12" r="10"/>
-            <circle cx="12" cy="10" r="3"/>
-            <path d="M6 19c2-4 10-4 12 0"/>
-          </svg>
-        </div>
-
         <div class="job-main">
           <h3>{{ job.title }}</h3>
-          <p class="household">{{ job.household }}</p>
+          <p class="household">{{ job.location }}</p>
         </div>
-
-        <p class="rate">₱{{ job.rate }} / Day</p>
-
+        <p class="rate">₱{{ job.estimated_payment }}</p>
         <div class="job-meta">
-          <span class="badge">{{ job.type }}</span>
-          <span class="duration">{{ job.duration }}</span>
+          <span class="badge">{{ job.get_category_display }}</span>
+          <span class="duration">{{ job.get_work_schedule_display }}</span>
         </div>
-
-        <a href="{% url 'jobs:job_detail' job.id %}" class="btn-primary job-action">View / Apply</a>
-
+        <a href="{% url 'jobs:job_detail' job.id %}" class="btn-primary job-action">View details</a>
       </article>
-      {% empty %}
-      <p class="empty">No jobs match your search.</p>
-      {% endfor %}
-
-      <p class="caught-up">You're all caught up — {{ jobs|length }} of {{ total }} jobs</p>
-
-    </section>
-
-  </div>
-
-</form>
-
+    {% empty %}
+      <div class="empty">
+        <h3>No jobs have been posted yet.</h3>
+        <p>There are currently no available jobs. Please check back later when a household posts an opportunity.</p>
+      </div>
+    {% endfor %}
+  </section>
+</div>
 {% endblock %}
