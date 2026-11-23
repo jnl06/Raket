@@ -24,6 +24,7 @@
   <header class="detail-head">
     <div>
       <p class="category">{{ job.get_category_display }}</p>
+      <p class="category">{{ job.get_category_display }}</p>
       <h1>{{ job.title }}</h1>
       <p class="engagement">{{ job.get_employment_type_display }} · {{ job.get_duration_display }} · {{ job.get_work_schedule_display }}</p>
     </div>
@@ -57,7 +58,7 @@
         {% endif %}
 
         <div class="work-location">
-          <strong>Work Location :</strong>
+          <strong>Work Location:</strong>
           <span>{{ job.location }}</span>
         </div>
       </section>
@@ -81,12 +82,13 @@
         {% if job.experience %}
         <div class="overview-item">
           <p class="label">Experience</p>
-          <p class="value">{{ job.experience }}</p>
+          <p class="value">Not specified</p>
         </div>
         {% endif %}
 
         <div class="overview-item">
           <p class="label">Location</p>
+          <p class="value">{{ job.location }}</p>
           <p class="value">{{ job.location }}</p>
         </div>
 
