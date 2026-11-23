@@ -1,0 +1,78 @@
+
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Account | RAKET</title>
+
+    <link rel="stylesheet" href="{% static 'css/signup.css' %}">
+</head>
+<body>
+
+<div class="signup-container">
+
+    <div class="signup-left">
+        <img src="/static/image/raket_logo.png" alt="RAKET Logo" class="raket-logo">
+        <h2>Find opportunities.<br>Build your future.</h2>
+        <p>Connect with people and discover opportunities that match your skills.</p>
+    </div>
+
+    <div class="signup-right">
+        <div class="signup-form-container">
+            <h1>Create Account</h1>
+            <p class="subtitle">Join RAKET and get started today.</p>
+
+            <form method="POST">
+                {% csrf_token %}
+
+                {% if form.errors %}
+                    <div class="error-message">
+                        Please check your information and try again.
+                        {{ form.errors }}
+                    </div>
+                {% endif %}
+
+                {{ form.role }}
+
+                <div class="form-group">
+                    <label for="{{ form.full_name.id_for_label }}">Full Name</label>
+                    {{ form.full_name }}
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.email.id_for_label }}">Email Address</label>
+                    {{ form.email }}
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.phone.id_for_label }}">Phone Number</label>
+                    {{ form.phone }}
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.password1.id_for_label }}">Password</label>
+                    {{ form.password1 }}
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.password2.id_for_label }}">Confirm Password</label>
+                    {{ form.password2 }}
+                </div>
+
+                <button type="submit" class="signup-btn">Create Account</button>
+            </form>
+
+            <p class="login-link">
+                 Already have an account?
+                <a href="{% url 'login' %}">Sign in</a>
+            </p>
+        </div>
+    </div>
+
+</div>
+
+</body>
+</html>
