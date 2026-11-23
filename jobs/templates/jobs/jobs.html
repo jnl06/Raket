@@ -4,13 +4,13 @@
 {% block title %}Find Jobs - Raket{% endblock %}
 
 {% block extra_head %}
-  <link rel="stylesheet" href="{% static 'css/jobs.css' %}?v=3">
+  <link rel="stylesheet" href="{% static 'css/jobs.css' %}?v=4">
 {% endblock %}
 
 {% block content %}
 
-<!-- One form for the search, filters and sort -->
-<form method="get" onchange="this.submit()">
+<!-- One form for the search, filters and sort. Changing a filter re-submits it. -->
+<form method="get" id="job-filters">
 
   <header class="page-head">
     <div class="container">
@@ -26,7 +26,7 @@
       </div>
 
       <div class="search-row">
-        <input type="text" name="q" value="{{ q }}" placeholder="Job Description">
+        <input type="text" name="q" value="{{ q }}" placeholder="Search title, description or location" aria-label="Search jobs">
         <button type="submit" class="btn-primary">Search jobs</button>
       </div>
 
@@ -41,7 +41,7 @@
 
       <div class="filters-head">
         <span>Filters</span>
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="#3A31A5">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="#3A31A5" aria-hidden="true">
           <path d="M3 4h18l-7 8v6l-4 2v-8z"/>
         </svg>
       </div>
@@ -50,28 +50,36 @@
         <p class="filter-title">Employment type</p>
 
         <label class="option">
-          <input type="radio" name="type" value="all" {% if job_type == 'all' %}checked{% endif %}>
+          <input type="radio" name="employment_type" value="" {% if not employment_type %}checked{% endif %}>
           All types
         </label>
 
+        {% for value, label in employment_types %}
         <label class="option">
-          <input type="radio" name="type" value="Full-time" {% if job_type == 'Full-time' %}checked{% endif %}>
-          Full-time
+          <input type="radio" name="employment_type" value="{{ value }}" {% if employment_type == value %}checked{% endif %}>
+          {{ label }}
         </label>
+        {% endfor %}
+      </div>
 
-        <label class="option">
-          <input type="radio" name="type" value="Part-time" {% if job_type == 'Part-time' %}checked{% endif %}>
-          Part-time
-        </label>
+      <div class="filter-group">
+        <p class="filter-title">Category</p>
+
+        <select name="category" class="select" aria-label="Category">
+          <option value="">All categories</option>
+          {% for value, label in categories %}
+          <option value="{{ value }}" {% if value == category %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
       </div>
 
       <div class="filter-group">
         <p class="filter-title">Duration</p>
 
-        <select name="duration" class="select">
-          <option value="all">All durations</option>
-          {% for d in durations %}
-          <option value="{{ d }}" {% if d == duration %}selected{% endif %}>{{ d }}</option>
+        <select name="duration" class="select" aria-label="Duration">
+          <option value="">All durations</option>
+          {% for value, label in durations %}
+          <option value="{{ value }}" {% if value == duration %}selected{% endif %}>{{ label }}</option>
           {% endfor %}
         </select>
       </div>
@@ -85,21 +93,27 @@
 
 
     <!-- Job list -->
-    <section class="jobs">
+    <section class="jobs" aria-live="polite">
 
       <div class="jobs-head">
         <div>
           <h2>Available jobs</h2>
-          <p class="count">Showing {{ jobs|length }} job{{ jobs|length|pluralize }}</p>
+          <p class="count">
+            {% if page.paginator.count %}
+              Showing {{ page.start_index }}{% if page.start_index != page.end_index %}–{{ page.end_index }}{% endif %} of {{ page.paginator.count }} job{{ page.paginator.count|pluralize }}
+            {% else %}
+              No jobs to show
+            {% endif %}
+          </p>
         </div>
 
         <div class="sort">
-          <span>Sort by</span>
+          <label for="sort">Sort by</label>
 
-          <select name="sort" class="select">
-            <option value="relevance" {% if sort == 'relevance' %}selected{% endif %}>Relevance</option>
-            <option value="rate_high" {% if sort == 'rate_high' %}selected{% endif %}>Highest rate</option>
-            <option value="rate_low" {% if sort == 'rate_low' %}selected{% endif %}>Lowest rate</option>
+          <select name="sort" id="sort" class="select">
+            {% for value, label in sorts %}
+            <option value="{{ value }}" {% if sort == value %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
           </select>
         </div>
       </div>
@@ -108,7 +122,7 @@
       <article class="job-card">
 
         <div class="job-icon">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3A31A5" stroke-width="1.8">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3A31A5" stroke-width="1.8" aria-hidden="true">
             <circle cx="12" cy="12" r="10"/>
             <circle cx="12" cy="10" r="3"/>
             <path d="M6 19c2-4 10-4 12 0"/>
@@ -117,29 +131,65 @@
 
         <div class="job-main">
           <h3>{{ job.title }}</h3>
-          <p class="household">{{ job.household }}</p>
+          <p class="household">{{ job.household_name }} · {{ job.location }}</p>
         </div>
 
-        <p class="rate">₱{{ job.rate }} / Day</p>
+        <p class="rate">{{ job.payment_amount }} / {{ job.get_pay_period_display }}</p>
 
         <div class="job-meta">
-          <span class="badge">{{ job.type }}</span>
-          <span class="duration">{{ job.duration }}</span>
+          <span class="badge">{{ job.get_employment_type_display }}</span>
+          <span class="duration">{{ job.get_duration_display }}</span>
+          <span class="duration">Work date: {{ job.work_date|date:"M j, Y" }}</span>
         </div>
 
-        <a href="{% url 'jobs:job_detail' job.id %}" class="btn-primary job-action">View / Apply</a>
+        <a href="{% url 'jobs:job_detail' job.pk %}" class="btn-primary job-action">View / Apply</a>
 
       </article>
       {% empty %}
-      <p class="empty">No jobs match your search.</p>
+      <div class="empty">
+        {% if has_filters %}
+          <p>No jobs match your search.</p>
+          <a href="{% url 'jobs:job_list' %}" class="empty-link">Clear all filters</a>
+        {% else %}
+          <p>No jobs are open right now. Check back soon, or post one yourself.</p>
+          <a href="{% url 'jobs:post_job' %}" class="empty-link">Post a job</a>
+        {% endif %}
+      </div>
       {% endfor %}
 
-      <p class="caught-up">You're all caught up — {{ jobs|length }} of {{ total }} jobs</p>
+      {% if page.paginator.num_pages > 1 %}
+      <nav class="pagination" aria-label="Job pages">
+        {% if page.has_previous %}
+        <a class="page-link" href="?{% if page_query %}{{ page_query }}&amp;{% endif %}page={{ page.previous_page_number }}" rel="prev">&larr; Previous</a>
+        {% else %}
+        <span class="page-link is-disabled" aria-disabled="true">&larr; Previous</span>
+        {% endif %}
+
+        <span class="page-status">Page {{ page.number }} of {{ page.paginator.num_pages }}</span>
+
+        {% if page.has_next %}
+        <a class="page-link" href="?{% if page_query %}{{ page_query }}&amp;{% endif %}page={{ page.next_page_number }}" rel="next">Next &rarr;</a>
+        {% else %}
+        <span class="page-link is-disabled" aria-disabled="true">Next &rarr;</span>
+        {% endif %}
+      </nav>
+      {% endif %}
+
+      {% if page.paginator.count and not page.has_next %}
+      <p class="caught-up">You're all caught up — {{ page.paginator.count }} job{{ page.paginator.count|pluralize }} in total</p>
+      {% endif %}
 
     </section>
 
   </div>
 
 </form>
+
+<script>
+  // Re-run the search when a filter or the sort order changes (the Search button still works too).
+  document.getElementById("job-filters").addEventListener("change", function (e) {
+    if (e.target.name !== "q") this.submit();
+  });
+</script>
 
 {% endblock %}

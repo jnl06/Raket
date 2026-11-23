@@ -65,14 +65,25 @@
         </div>
         {{ form.work_schedule.errors }}
       </div>
-      <div class="field{% if form.estimated_payment.errors %} has-error{% endif %}">
-        {{ form.estimated_payment.label_tag }}
-        {{ form.estimated_payment }}
-        {{ form.estimated_payment.errors }}
+      <div class="field{% if form.employment_type.errors %} has-error{% endif %}">
+        {{ form.employment_type.label_tag }}
+        <div class="select-wrap">
+          {{ form.employment_type }}
+          <svg class="chev" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8l8 8 8-8"/></svg>
+        </div>
+        {{ form.employment_type.errors }}
       </div>
     </div>
 
     <div class="row two-col align-top">
+      <div class="field{% if form.duration.errors %} has-error{% endif %}">
+        {{ form.duration.label_tag }}
+        <div class="select-wrap">
+          {{ form.duration }}
+          <svg class="chev" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8l8 8 8-8"/></svg>
+        </div>
+        {{ form.duration.errors }}
+      </div>
       <div class="field{% if form.number_of_workers.errors %} has-error{% endif %}">
         {{ form.number_of_workers.label_tag }}
         <div class="select-wrap">
@@ -81,10 +92,55 @@
         </div>
         {{ form.number_of_workers.errors }}
       </div>
+    </div>
+
+    <div class="row two-col align-top">
+      <div class="field{% if form.estimated_payment.errors %} has-error{% endif %}">
+        {{ form.estimated_payment.label_tag }}
+        {{ form.estimated_payment }}
+        {{ form.estimated_payment.errors }}
+      </div>
+      <div class="field{% if form.max_payment.errors %} has-error{% endif %}">
+        <label for="{{ form.max_payment.id_for_label }}">{{ form.max_payment.label }} <span class="optional">(optional)</span></label>
+        {{ form.max_payment }}
+        {{ form.max_payment.errors }}
+      </div>
+    </div>
+
+    <div class="row two-col align-top">
+      <div class="field{% if form.pay_period.errors %} has-error{% endif %}">
+        {{ form.pay_period.label_tag }}
+        <div class="select-wrap">
+          {{ form.pay_period }}
+          <svg class="chev" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8l8 8 8-8"/></svg>
+        </div>
+        {{ form.pay_period.errors }}
+      </div>
+      <div class="field{% if form.experience.errors %} has-error{% endif %}">
+        <label for="{{ form.experience.id_for_label }}">{{ form.experience.label }} <span class="optional">(optional)</span></label>
+        {{ form.experience }}
+        {{ form.experience.errors }}
+      </div>
+    </div>
+
+    <div class="row two-col align-top">
+      <div class="field{% if form.industry.errors %} has-error{% endif %}">
+        <label for="{{ form.industry.id_for_label }}">{{ form.industry.label }} <span class="optional">(optional)</span></label>
+        {{ form.industry }}
+        {{ form.industry.errors }}
+      </div>
       <div class="field{% if form.requirements.errors %} has-error{% endif %}">
-        <label for="{{ form.requirements.id_for_label }}">Requirements / Skills <span class="optional">(optional)</span></label>
+        <label for="{{ form.requirements.id_for_label }}">{{ form.requirements.label }} <span class="optional">(optional)</span></label>
         {{ form.requirements }}
         {{ form.requirements.errors }}
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="field{% if form.how_to_apply.errors %} has-error{% endif %}">
+        <label for="{{ form.how_to_apply.id_for_label }}">{{ form.how_to_apply.label }} <span class="optional">(optional)</span></label>
+        {{ form.how_to_apply }}
+        {{ form.how_to_apply.errors }}
       </div>
     </div>
 

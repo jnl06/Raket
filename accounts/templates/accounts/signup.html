@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Sign up - Raket{% endblock %}
+
+{% block extra_head %}
+  <link rel="stylesheet" href="{% static 'css/auth.css' %}?v=1">
+{% endblock %}
+
+{% block content %}
+<section class="auth">
+  <div class="auth-card">
+    <p class="auth-eyebrow">GET STARTED</p>
+    <h1>Create your account</h1>
+    <p class="auth-sub">Tell us how you'll use Raket. It only takes a minute.</p>
+
+    <form data-auth="signup" data-next="{{ next }}" novalidate>
+      <div class="auth-alert" role="alert" hidden data-alert></div>
+
+      <fieldset class="auth-roles">
+        <legend class="auth-legend">I want to</legend>
+        <label class="auth-role">
+          <input type="radio" name="role" value="job_seeker" {% if role == 'job_seeker' %}checked{% endif %}>
+          <strong>Find work</strong>
+          <span>Job Seeker: browse and apply to jobs.</span>
+        </label>
+        <label class="auth-role">
+          <input type="radio" name="role" value="job_provider" {% if role == 'job_provider' %}checked{% endif %}>
+          <strong>Hire help</strong>
+          <span>Job Provider: post jobs and review applicants.</span>
+        </label>
+        <p class="auth-error" data-error-for="role"></p>
+      </fieldset>
+
+      <div class="auth-field">
+        <label for="full_name">Full name</label>
+        <span class="auth-input"><input type="text" id="full_name" name="full_name" autocomplete="name" required></span>
+        <p class="auth-error" data-error-for="full_name"></p>
+      </div>
+
+      <div class="auth-field">
+        <label for="email">Email address</label>
+        <span class="auth-input"><input type="email" id="email" name="email" autocomplete="email" placeholder="you@example.com" required></span>
+        <p class="auth-error" data-error-for="email"></p>
+      </div>
+
+      <div class="auth-field">
+        <label for="phone">Phone number</label>
+        <span class="auth-input"><input type="tel" id="phone" name="phone" autocomplete="tel" placeholder="09XX XXX XXXX" required></span>
+        <p class="auth-error" data-error-for="phone"></p>
+      </div>
+
+      <div class="auth-field">
+        <label for="password">Password</label>
+        <span class="auth-input auth-input--password">
+          <input type="password" id="password" name="password" autocomplete="new-password" required>
+          <button type="button" class="auth-toggle" data-toggle-password aria-label="Show password">Show</button>
+        </span>
+        <p class="auth-hint">At least 8 characters, and not a common or all-numeric password.</p>
+        <p class="auth-error" data-error-for="password"></p>
+      </div>
+
+      <div class="auth-field">
+        <label for="confirm_password">Confirm password</label>
+        <span class="auth-input"><input type="password" id="confirm_password" name="confirm_password" autocomplete="new-password" required></span>
+        <p class="auth-error" data-error-for="confirm_password"></p>
+      </div>
+
+      <div class="auth-field">
+        <label class="auth-check"><input type="checkbox" name="agree_terms"> I agree to the Terms of Service and Privacy Policy</label>
+        <p class="auth-error" data-error-for="agree_terms"></p>
+      </div>
+
+      <button type="submit" class="auth-submit" data-busy-label="Creating account…">Create Account</button>
+    </form>
+
+    <p class="auth-foot">Already have an account? <a class="auth-link" href="{% url 'accounts:signin' %}{% if next %}?next={{ next|urlencode }}{% endif %}">Sign in</a></p>
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}<script src="{% static 'js/auth.js' %}?v=1"></script>{% endblock %}

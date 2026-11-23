@@ -4,8 +4,8 @@
 {% block title %}{{ job.title }} - Raket{% endblock %}
 
 {% block extra_head %}
-  <link rel="stylesheet" href="{% static 'css/jobs.css' %}?v=3">
-  <link rel="stylesheet" href="{% static 'css/job_detail.css' %}?v=3">
+  <link rel="stylesheet" href="{% static 'css/jobs.css' %}?v=4">
+  <link rel="stylesheet" href="{% static 'css/job_detail.css' %}?v=4">
 {% endblock %}
 
 {% block content %}
@@ -23,12 +23,16 @@
   <!-- Title -->
   <header class="detail-head">
     <div>
-      <p class="category">{{ job.category }}</p>
+      <p class="category">{{ job.get_category_display }}</p>
       <h1>{{ job.title }}</h1>
-      <p class="engagement">Typical engagement: {{ job.engagement }}</p>
+      <p class="engagement">{{ job.get_employment_type_display }} · {{ job.get_duration_display }} · {{ job.get_work_schedule_display }}</p>
     </div>
 
-    <span class="roles-open">{{ job.roles_open }} Roles Open</span>
+    {% if job.status == 'closed' %}
+    <span class="roles-open roles-open--closed">Closed</span>
+    {% else %}
+    <span class="roles-open">{{ roles_open }} Role{{ roles_open|pluralize }} Open</span>
+    {% endif %}
   </header>
 
 
@@ -40,6 +44,9 @@
       <section class="card">
         <h2>Job Description</h2>
 
+        <div class="description">{{ job.description|linebreaks }}</div>
+
+        {% if job.qualifications %}
         <h3>Basic Qualifications</h3>
 
         <ul class="qualifications">
@@ -47,6 +54,7 @@
           <li>{{ item }}</li>
           {% endfor %}
         </ul>
+        {% endif %}
 
         <div class="work-location">
           <strong>Work Location :</strong>
@@ -54,10 +62,12 @@
         </div>
       </section>
 
+      {% if job.how_to_apply %}
       <section class="card">
         <h3 class="apply-title">How to Apply</h3>
-        <p class="apply-text">{{ job.how_to_apply }}</p>
+        <div class="apply-text">{{ job.how_to_apply|linebreaks }}</div>
       </section>
+      {% endif %}
 
     </div>
 
@@ -68,32 +78,88 @@
       <section class="card overview">
         <h2>Job Overview</h2>
 
+        {% if job.experience %}
         <div class="overview-item">
           <p class="label">Experience</p>
           <p class="value">{{ job.experience }}</p>
         </div>
+        {% endif %}
 
         <div class="overview-item">
           <p class="label">Location</p>
-          <p class="value">{{ job.city }}</p>
+          <p class="value">{{ job.location }}</p>
         </div>
 
         <div class="overview-item">
           <p class="label">Offered Salary</p>
-          <p class="value salary">₱{{ job.salary_min }} - {{ job.salary_max }} a day</p>
+          <p class="value salary">{{ job.payment_phrase }}</p>
         </div>
 
+        <div class="overview-item">
+          <p class="label">Work Date</p>
+          <p class="value">{{ job.work_date|date:"F j, Y" }}</p>
+        </div>
+
+        {% if job.industry %}
         <div class="overview-item">
           <p class="label">Industry</p>
           <p class="value">{{ job.industry }}</p>
         </div>
+        {% endif %}
+
+        <div class="overview-item">
+          <p class="label">Posted By</p>
+          <p class="value">{{ job.household_name }}</p>
+        </div>
 
         <div class="overview-item">
           <p class="label">Date Posted</p>
-          <p class="value">{{ job.date_posted }}</p>
+          <p class="value">{{ job.created_at|date:"F j, Y" }}</p>
         </div>
 
-        <a href="#" class="apply-now">Apply Now</a>
+        <!-- Apply (state decided in views.job_detail) -->
+        {% if apply_state == 'can_apply' %}
+        <div data-apply data-url="{% url 'api:job_apply' job_id=job.pk %}">
+          <button type="button" class="apply-now" data-apply-open aria-expanded="false" aria-controls="apply-panel">Apply Now</button>
+
+          <form class="apply-panel" id="apply-panel" hidden novalidate>
+            <label for="cover_note">Message to the household <span class="optional">(optional)</span></label>
+            <textarea id="cover_note" name="cover_note" rows="4" maxlength="2000" placeholder="Introduce yourself, and mention any experience or when you're available."></textarea>
+            <p class="apply-error" role="alert" data-apply-error hidden></p>
+            <div class="apply-actions">
+              <button type="submit" class="apply-now apply-now--submit">Submit application</button>
+              <button type="button" class="apply-cancel" data-apply-cancel>Cancel</button>
+            </div>
+          </form>
+
+          <p class="apply-done" role="status" data-apply-done hidden></p>
+        </div>
+
+        {% elif apply_state == 'applied' %}
+        <div class="apply-box" data-apply-withdraw data-url="{% url 'api:application_detail' application_id=application.pk %}">
+          <p class="apply-status apply-status--{{ application.status }}">
+            You applied on {{ application.created_at|date:"M j, Y" }}.<br>
+            Status: <strong>{{ application.get_status_display }}</strong>
+          </p>
+          {% if application.status != 'hired' %}
+          <button type="button" class="apply-cancel apply-cancel--block" data-withdraw>Withdraw application</button>
+          <p class="apply-error" role="alert" data-apply-error hidden></p>
+          {% endif %}
+        </div>
+
+        {% elif apply_state == 'anonymous' %}
+        <a href="{% url 'accounts:signin' %}?next={{ request.path|urlencode }}" class="apply-now">Sign in to apply</a>
+        <p class="apply-hint">New here? <a href="{% url 'accounts:signup' %}?next={{ request.path|urlencode }}">Create a job seeker account</a>.</p>
+
+        {% elif apply_state == 'owner' %}
+        <p class="apply-note">This is your job post. {{ job.applicant_count }} applicant{{ job.applicant_count|pluralize }} so far.</p>
+
+        {% elif apply_state == 'provider' %}
+        <p class="apply-note">Only job seeker accounts can apply to jobs.</p>
+
+        {% else %}
+        <p class="apply-note">This job is no longer accepting applicants.</p>
+        {% endif %}
       </section>
 
       <a href="{% url 'jobs:job_list' %}" class="back-btn">Back to Jobs</a>
@@ -103,4 +169,10 @@
   </div>
 
 </div>
+{% endblock %}
+
+{% block extra_js %}
+{% if apply_state == 'can_apply' or apply_state == 'applied' %}
+<script src="{% static 'js/job_apply.js' %}?v=1"></script>
+{% endif %}
 {% endblock %}

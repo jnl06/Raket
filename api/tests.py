@@ -33,6 +33,7 @@ def job_payload(**overrides):
         "work_schedule": "whole_day",
         "estimated_payment": 500,
         "max_payment": 900,
+        "pay_period": "day",
         "number_of_workers": 2,
         "requirements": "At least 18 years old.\nPhysically fit.",
         "employment_type": "part_time",
@@ -231,6 +232,35 @@ class JobTests(ApiTestCase):
         r = self.post(c, "jobs", job_payload(max_payment=100))
         self.assertIn("max_payment", r.json()["error"]["fields"])
 
+    def test_nothing_is_filled_in_for_the_poster(self):
+        """No field default: leaving out a content field is a validation error, not a guess."""
+        c = self.client_for(self.provider)
+        payload = job_payload()
+        for field in ("employment_type", "duration", "pay_period", "number_of_workers"):
+            payload.pop(field, None)
+        r = self.post(c, "jobs", payload)
+        self.assertEqual(r.status_code, 400)
+        fields = r.json()["error"]["fields"]
+        for field in ("employment_type", "duration", "pay_period", "number_of_workers"):
+            self.assertIn(field, fields)
+        self.assertEqual(Job.objects.count(), 0)
+
+    def test_optional_fields_stay_empty_when_omitted(self):
+        c = self.client_for(self.provider)
+        payload = job_payload(max_payment=None)
+        for field in ("experience", "industry", "requirements"):
+            payload.pop(field, None)
+        r = self.post(c, "jobs", payload)
+        self.assertEqual(r.status_code, 201, r.content)
+        job = r.json()["job"]
+        self.assertEqual((job["experience"], job["industry"], job["how_to_apply"]), ("", "", ""))
+        self.assertEqual(job["qualifications"], [])
+        self.assertIsNone(job["payment"]["max_amount"])
+
+    def test_job_model_has_no_content_defaults(self):
+        for name in ("employment_type", "duration", "pay_period", "number_of_workers", "experience", "industry", "how_to_apply"):
+            self.assertFalse(Job._meta.get_field(name).has_default(), name)
+
     def test_browse_filters_search_and_sort(self):
         self.make_job(title="House Cleaning", category="house_cleaning", industry="", employment_type="one_time", duration="one_day", estimated_payment=700)
         self.make_job(title="Garden Maintenance", category="gardening", industry="", employment_type="part_time", duration="few_days", estimated_payment=650, location="Tayabas City")
@@ -369,6 +399,12 @@ class ApplicationFlowTests(ApiTestCase):
         self.assertEqual(self.post(self.client_for(self.seeker2), "job_apply", job_id=self.job.pk).status_code, 409)
         # an applicant can still open the closed job they applied to
         self.assertEqual(self.get(c, "job_detail", job_id=self.job.pk).status_code, 200)
+
+    def test_cannot_apply_after_the_work_date_has_passed(self):
+        Job.objects.filter(pk=self.job.pk).update(work_date=date.today() - timedelta(days=1))
+        r = self.post(self.client_for(self.seeker), "job_apply", job_id=self.job.pk)
+        self.assertEqual(r.status_code, 409)
+        self.assertEqual(r.json()["error"]["code"], "job_closed")
 
     def test_my_applications_counts_filter_search(self):
         j2 = self.make_job(title="House Cleaning", location="Tayabas City")

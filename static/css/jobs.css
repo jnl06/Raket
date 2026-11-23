@@ -403,3 +403,85 @@ a {
     gap: 16px;
   }
 }
+
+/* ---------- Empty state, pagination, small extras ---------- */
+
+.empty p { margin-bottom: 10px; }
+
+.empty-link {
+  display: inline-block;
+  padding: 9px 18px;
+
+  border: 1px solid var(--indigo);
+  border-radius: 8px;
+
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--indigo);
+}
+
+.empty-link:hover {
+  background: var(--indigo-light);
+}
+
+.sort label {
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  margin-top: 20px;
+}
+
+.page-link {
+  padding: 9px 16px;
+
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+
+  font-size: 13px;
+  font-weight: 500;
+}
+
+a.page-link:hover {
+  border-color: var(--indigo);
+  color: var(--indigo);
+}
+
+.page-link.is-disabled {
+  color: #b4b9c4;
+  cursor: not-allowed;
+}
+
+.page-status {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.btn-primary:hover { background: #2e2890; }
+
+.btn-primary:focus-visible,
+.btn-outline:focus-visible,
+.page-link:focus-visible,
+.empty-link:focus-visible {
+  outline: 2px solid var(--indigo);
+  outline-offset: 2px;
+}
+
+@media (max-width: 800px) {
+  .job-card {
+    grid-template-columns: auto 1fr;
+    grid-template-areas:
+      "icon main"
+      "rate rate"
+      "meta meta"
+      "action action";
+  }
+
+  .job-action { text-align: center; }
+}

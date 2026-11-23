@@ -54,7 +54,7 @@ def apply_to_job(request, job_id):
 
     with transaction.atomic():
         job = get_object_or_404(Job.objects.select_for_update(), pk=job_id)
-        if job.status != Job.Status.ACTIVE:
+        if not job.is_open:  # closed, or its work date has passed
             raise ApiError(409, "job_closed", "This job is no longer accepting applicants.")
         if job.posted_by_id == user.pk:
             raise ApiError(403, "own_job", "You can't apply to your own job post.")

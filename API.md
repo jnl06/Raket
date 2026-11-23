@@ -69,4 +69,11 @@ Application statuses: `submitted`, `under_review`, `hired`, `rejected` (shown as
 
 - **Continue with Google** (needs OAuth client credentials — e.g. `django-allauth`).
 - **Review and rating** (appears in the footer only; no screen designed).
-- The existing server-rendered `/post-job/` page is unchanged and still works.
+- Manage posted jobs, Manage applicants and Applied jobs screens (the API for them exists; the pages are marked "Coming soon" in the navbar/footer).
+
+## How the pages use it
+
+- `/signin/`, `/signup/`, `/forgot-password/`, `/reset-password/` and the **Apply Now** / **Withdraw** buttons on the job page call this API from `static/js/auth.js` and `static/js/job_apply.js` (CSRF token read from `<meta name="csrf-token">`).
+- `/jobs/`, `/jobs/<id>/` and Home read the database directly through `jobs/queries.py`, the same code behind `GET /api/jobs/`, so filters and sorting behave identically.
+- `/post-job/` is a server-rendered form for **job provider** accounts (same validation rules as `POST /api/jobs/`).
+- Jobs have **no default values**: `employment_type`, `duration`, `pay_period` and `number_of_workers` must be supplied; `max_payment`, `requirements`, `experience`, `industry` and `how_to_apply` stay empty unless given.

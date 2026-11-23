@@ -1,11 +1,10 @@
 """Job endpoints: browse, detail, post, edit, close, repost, manage posted jobs."""
-from datetime import date
-
-from django.db.models import Case, Count, IntegerField, Q, Value, When
+from django.db.models import Count, Q
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 
 from jobs.models import Application, Job
+from jobs.queries import PUBLIC_SORTS, browse_jobs as query_jobs, category_counts, jobs_with_poster
 
 from .forms import JobWriteForm
 from .serializers import job_dict
@@ -22,7 +21,6 @@ from .utils import (
 
 PROVIDER = "job_provider"
 
-PUBLIC_SORTS = ("relevance", "newest", "oldest", "pay_high", "pay_low", "work_date")
 MANAGE_SORTS = {
     "recent": ("-created_at",),
     "oldest": ("created_at",),
@@ -31,17 +29,7 @@ MANAGE_SORTS = {
 }
 
 
-def _jobs():
-    return Job.objects.select_related("posted_by", "posted_by__profile").with_counts()
-
-
-def _search(qs, q):
-    return qs.filter(
-        Q(title__icontains=q)
-        | Q(description__icontains=q)
-        | Q(location__icontains=q)
-        | Q(industry__icontains=q)
-    )
+_jobs = jobs_with_poster
 
 
 @api_view("GET", "POST")
@@ -53,52 +41,21 @@ def jobs(request):
 
 def browse_jobs(request):
     """Public job list: search, filters (type/duration/category/location) and sort."""
-    qs = _jobs().active().filter(work_date__gte=date.today())
-
     category = choice_filter(request, "category", Job.Category.choices)
     employment = choice_filter(request, "employment_type", Job.Employment.choices)
     duration = choice_filter(request, "duration", Job.Duration.choices)
-    if category:
-        qs = qs.filter(category=category)
-    if employment:
-        qs = qs.filter(employment_type=employment)
-    if duration:
-        qs = qs.filter(duration=duration)
-
-    location = request.GET.get("location", "").strip()
-    if location:
-        qs = qs.filter(location__icontains=location)
-
-    q = request.GET.get("q", "").strip()
-    if q:
-        qs = _search(qs, q)
-
     sort = request.GET.get("sort", "relevance")
     if sort not in PUBLIC_SORTS:
         raise ApiError(400, "invalid_sort", f"sort must be one of: {', '.join(PUBLIC_SORTS)}.")
-    if sort == "relevance" and q:
-        qs = qs.annotate(
-            relevance=Case(
-                When(title__icontains=q, then=Value(3)),
-                When(location__icontains=q, then=Value(2)),
-                When(industry__icontains=q, then=Value(1)),
-                default=Value(0),
-                output_field=IntegerField(),
-            )
-        ).order_by("-relevance", "-created_at")
-    else:
-        qs = qs.order_by(
-            {
-                "relevance": "-created_at",
-                "newest": "-created_at",
-                "oldest": "created_at",
-                "pay_high": "-estimated_payment",
-                "pay_low": "estimated_payment",
-                "work_date": "work_date",
-            }[sort],
-            "-id",
-        )
 
+    qs = query_jobs(
+        q=request.GET.get("q", "").strip(),
+        category=category,
+        employment_type=employment,
+        duration=duration,
+        location=request.GET.get("location", "").strip(),
+        sort=sort,
+    )
     items, meta = paginate(request, qs)
     return JsonResponse({"results": [job_dict(j) for j in items], "pagination": meta})
 
@@ -238,20 +195,9 @@ def my_jobs(request):
 @api_view("GET")
 def categories(request):
     """Category list with open-job counts; most popular first (Home 'Popular searches')."""
-    counts = dict(
-        Job.objects.active()
-        .filter(work_date__gte=date.today())
-        .values_list("category")
-        .annotate(n=Count("id"))
-    )
-    results = [
-        {"value": value, "label": label, "job_count": counts.get(value, 0)}
-        for value, label in Job.Category.choices
-    ]
-    results.sort(key=lambda c: (-c["job_count"], c["label"]))
     return JsonResponse(
         {
-            "results": results,
+            "results": category_counts(),
             "employment_types": [{"value": v, "label": l} for v, l in Job.Employment.choices],
             "durations": [{"value": v, "label": l} for v, l in Job.Duration.choices],
             "schedules": [{"value": v, "label": l} for v, l in Job.Schedule.choices],

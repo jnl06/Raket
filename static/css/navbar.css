@@ -253,3 +253,36 @@ button.navbar__link {
   .navbar__signup { width: auto; padding: 0 12px; }
   .navbar__signin { width: 96px; height: 42px; }
 }
+
+/* ---- signed-in state + not-yet-built menu entries ---- */
+.navbar__user {
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 18px;
+  line-height: 24px;
+  color: var(--ink);
+}
+.navbar__signout {
+  border: none;
+  font-family: inherit;
+  font-weight: inherit;
+  cursor: pointer;
+  margin-left: 18px;
+}
+.navbar__soon,
+.footer__soon {
+  display: block;
+  padding: 6px 0;
+  font-weight: 400;
+  font-size: 20px;
+  line-height: 28px;
+  color: #9aa3b5;
+  cursor: not-allowed;
+}
+.footer__soon { display: inline; padding: 0; font-size: inherit; line-height: inherit; }
+a.navbar__search { text-decoration: none; }
+@media (max-width: 900px) {
+  .navbar__user { display: none; }
+}
