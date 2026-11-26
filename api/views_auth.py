@@ -115,7 +115,7 @@ def login_view(request):
 
     login(request, user)
     if data.get("remember_me") not in TRUE_VALUES:
-        request.session.set_expiry(0)  # session ends when the browser closes
+        request.session.set_expiry(0)  
     return JsonResponse({"user": _me(user)})
 
 
@@ -136,7 +136,6 @@ def _validate_resume(upload):
 
 @api_view("GET", "PATCH", "POST")
 def me(request):
-    """GET: current user. PATCH/POST: update profile (JSON, or multipart to upload `resume`)."""
     user = require_auth(request)
     profile = get_profile(user)
     if request.method == "GET":

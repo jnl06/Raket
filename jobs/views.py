@@ -29,9 +29,21 @@ SORT_LABELS = {
 
 
 def home(request):
+    categories = category_counts()
     # "Popular searches": the categories that actually have open jobs, busiest first.
-    popular = [c for c in category_counts() if c["job_count"] > 0][:6]
-    return render(request, "jobs/home.html", {"popular_categories": popular})
+    popular = [c for c in categories if c["job_count"] > 0][:6]
+    latest = list(browse_jobs(sort="newest")[:3])
+    return render(
+        request,
+        "jobs/home.html",
+        {
+            "popular_categories": popular,
+            "categories": categories,
+            "latest_jobs": latest,
+            "open_jobs_count": sum(c["job_count"] for c in categories),
+            "category_choices": Job.Category.choices,
+        },
+    )
 
 
 def post_job(request):
@@ -84,6 +96,26 @@ def job_list(request):
     }
     page_query = urlencode({k: v for k, v in active.items() if v})
 
+    # One removable chip per active filter (each link drops just that filter).
+    labels = {
+        "q": lambda v: f"“{v}”",
+        "category": lambda v: dict(Job.Category.choices)[v],
+        "employment_type": lambda v: dict(Job.Employment.choices)[v],
+        "duration": lambda v: dict(Job.Duration.choices)[v],
+    }
+    active_filters = []
+    for key, label in labels.items():
+        if not active[key]:
+            continue
+        rest = {k: v for k, v in active.items() if v and k != key}
+        query = urlencode(rest)
+        active_filters.append(
+            {
+                "label": label(active[key]),
+                "remove_url": f"{request.path}?{query}" if query else request.path,
+            }
+        )
+
     context = {
         "page": page,
         "jobs": page.object_list,
@@ -97,6 +129,7 @@ def job_list(request):
         "durations": Job.Duration.choices,
         "sorts": list(SORT_LABELS.items()),
         "page_query": page_query,
+        "active_filters": active_filters,
         "has_filters": bool(q or category or employment_type or duration),
     }
     return render(request, "jobs/jobs.html", context)

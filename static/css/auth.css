@@ -1,10 +1,9 @@
 /* ---------- Sign in / Sign up / password reset / 404 (tokens come from base.css) ---------- */
-body { background: var(--surface-muted); }
 
 .auth {
   display: flex;
   justify-content: center;
-  padding: 56px 20px 80px;
+  padding: clamp(28px, 6vw, 64px) var(--gutter) 0;
 }
 
 .auth-card {
@@ -13,8 +12,9 @@ body { background: var(--surface-muted); }
   padding: 40px 44px 36px;
   background: #fff;
   border: 1px solid var(--line);
-  border-radius: 16px;
-  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04), 0 12px 32px rgba(23, 31, 61, 0.06);
+  border-radius: var(--radius-l);
+  border-top: 5px solid var(--lime);
+  box-shadow: var(--shadow-m);
 }
 
 .auth-eyebrow {
@@ -26,18 +26,18 @@ body { background: var(--surface-muted); }
 }
 .auth-card h1,
 .notfound h1 {
-  margin: 10px 0 0;
-  font-family: "Source Serif 4", Georgia, serif;
+  margin: 0;
+  font-family: var(--font-display);
   font-size: 32px;
-  font-weight: 600;
-  line-height: 1.2;
-  color: var(--ink);
+  font-weight: 700;
+  line-height: 1.15;
+  color: var(--navy);
 }
 .auth-sub {
   margin: 12px 0 28px;
   font-size: 15px;
   line-height: 1.5;
-  color: #5a6478;
+  color: var(--muted);
 }
 
 /* ---------- Fields ---------- */
@@ -125,7 +125,7 @@ body { background: var(--surface-muted); }
   pointer-events: none;
 }
 .auth-role strong { display: block; font-size: 15px; color: var(--ink); }
-.auth-role span { display: block; margin-top: 3px; font-size: 12.5px; line-height: 1.4; color: #5a6478; }
+.auth-role span { display: block; margin-top: 3px; font-size: 12.5px; line-height: 1.4; color: var(--muted); }
 .auth-role:hover { border-color: var(--indigo); }
 .auth-role:has(input:checked) { border-color: var(--indigo); background: #f1f0fc; box-shadow: 0 0 0 1px var(--indigo); }
 .auth-role:has(input:focus-visible) { outline: 2px solid var(--indigo); outline-offset: 2px; }
@@ -193,7 +193,7 @@ body { background: var(--surface-muted); }
   border-top: 1px solid var(--line);
   font-size: 14px;
   text-align: center;
-  color: #5a6478;
+  color: var(--muted);
 }
 
 /* ---------- 404 ---------- */

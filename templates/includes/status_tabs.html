@@ -1,0 +1,8 @@
+{# Filter tabs for applications. Expects `tabs`. Each tab is a plain link, so it works without JS. #}
+<nav class="tabs" aria-label="Filter by status">
+  {% for tab in tabs %}
+  <a href="{{ request.path }}{% if tab.query %}?{{ tab.query }}{% endif %}" class="tabs__item{% if tab.active %} is-active{% endif %}"{% if tab.active %} aria-current="true"{% endif %}>
+    {{ tab.label }} <span class="tabs__count">{{ tab.count }}</span>
+  </a>
+  {% endfor %}
+</nav>

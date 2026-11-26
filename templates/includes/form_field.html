@@ -1,0 +1,7 @@
+{# Usage: {% include "includes/form_field.html" with field=form.title optional=False hint="..." %} #}
+<div class="field{% if field.errors %} has-error{% endif %}">
+  <label for="{{ field.id_for_label }}">{{ field.label }}{% if optional %} <span class="optional">(optional)</span>{% endif %}</label>
+  {{ field }}
+  {% if hint %}<p class="field__hint" id="{{ field.id_for_label }}_hint">{{ hint }}</p>{% endif %}
+  {% for error in field.errors %}<p class="field__error" id="{{ field.id_for_label }}_error">{{ error }}</p>{% endfor %}
+</div>

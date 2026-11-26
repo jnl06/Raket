@@ -1,105 +1,90 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}Find Jobs - Raket{% endblock %}
+{% block title %}Find jobs - Raket{% endblock %}
+{% block meta_description %}Browse open short-term household jobs on Raket and apply in minutes.{% endblock %}
 
 {% block extra_head %}
-  <link rel="stylesheet" href="{% static 'css/jobs.css' %}?v=4">
-  <link rel="stylesheet" href="{% static 'css/jobs.css' %}?v=4">
+  <link rel="stylesheet" href="{% static 'css/jobs.css' %}?v=6">
 {% endblock %}
 
 {% block content %}
-
-<!-- One form for the search, filters and sort. Changing a filter re-submits it. -->
-<form method="get" id="job-filters">
+{# One form for the search, filters and sort. Changing a filter re-submits it. #}
+<form method="get" id="job-filters" action="{% url 'jobs:job_list' %}">
 
   <header class="page-head">
     <div class="container">
-
-      <div class="head-top">
+      <div class="page-head__top">
         <div>
-          <p class="eyebrow">OPPORTUNITIES THAT FIT YOU</p>
-          <h1>Find your next job</h1>
-          <p class="subtitle">Explore available opportunities and find the right fit for you.</p>
+          <h1>Find a job</h1>
+          <p class="page-head__sub">Short-term work from households near you. Pick one and apply in a minute.</p>
         </div>
-
-        <a href="{% url 'jobs:post_job' %}" class="btn-outline">Post a job</a>
+        <a href="{% url 'jobs:post_job' %}" class="btn btn--ghost">Post a job</a>
       </div>
 
-      <div class="search-row">
-        <input type="text" name="q" value="{{ q }}" placeholder="Search title, description or location" aria-label="Search jobs">
-        <button type="submit" class="btn-primary">Search jobs</button>
+      <div class="search-bar" role="search">
+        <svg class="search-bar__icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>
+        <input type="search" name="q" value="{{ q }}" class="search-bar__input" placeholder="Job title, place or keyword" aria-label="Search jobs">
+        <button type="submit" class="btn btn--primary">Search</button>
       </div>
-
     </div>
   </header>
 
-
   <div class="container layout">
 
-    <!-- Filters -->
-    <aside class="filters">
+    <aside class="filters" aria-label="Filters">
+      <details class="filters__box" open>
+        <summary class="filters__summary">
+          <span>Filters</span>
+          {% if has_filters %}<span class="chip chip--navy">On</span>{% endif %}
+        </summary>
 
-      <div class="filters-head">
-        <span>Filters</span>
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="#3A31A5" aria-hidden="true">
-          <path d="M3 4h18l-7 8v6l-4 2v-8z"/>
-        </svg>
-      </div>
-
-      <div class="filter-group">
-        <p class="filter-title">Employment type</p>
-
-        <label class="option">
-          <input type="radio" name="employment_type" value="" {% if not employment_type %}checked{% endif %}>
-          All types
-        </label>
-
-        {% for value, label in employment_types %}
-        <label class="option">
-          <input type="radio" name="employment_type" value="{{ value }}" {% if employment_type == value %}checked{% endif %}>
-          {{ label }}
-        </label>
-        {% endfor %}
-      </div>
-
-      <div class="filter-group">
-        <p class="filter-title">Category</p>
-
-        <select name="category" class="select" aria-label="Category">
-          <option value="">All categories</option>
-          {% for value, label in categories %}
-          <option value="{{ value }}" {% if value == category %}selected{% endif %}>{{ label }}</option>
+        <fieldset class="filter-group">
+          <legend class="filter-title">Employment type</legend>
+          <label class="option">
+            <input type="radio" name="employment_type" value="" {% if not employment_type %}checked{% endif %}>
+            <span>All types</span>
+          </label>
+          {% for value, label in employment_types %}
+          <label class="option">
+            <input type="radio" name="employment_type" value="{{ value }}" {% if employment_type == value %}checked{% endif %}>
+            <span>{{ label }}</span>
+          </label>
           {% endfor %}
-        </select>
-      </div>
+        </fieldset>
 
-      <div class="filter-group">
-        <p class="filter-title">Duration</p>
+        <div class="filter-group">
+          <label class="filter-title" for="category">Category</label>
+          <select name="category" id="category" class="select">
+            <option value="">All categories</option>
+            {% for value, label in categories %}
+            <option value="{{ value }}" {% if value == category %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
+        </div>
 
-        <select name="duration" class="select" aria-label="Duration">
-          <option value="">All durations</option>
-          {% for value, label in durations %}
-          <option value="{{ value }}" {% if value == duration %}selected{% endif %}>{{ label }}</option>
-          {% endfor %}
-        </select>
-      </div>
+        <div class="filter-group">
+          <label class="filter-title" for="duration">Duration</label>
+          <select name="duration" id="duration" class="select">
+            <option value="">Any duration</option>
+            {% for value, label in durations %}
+            <option value="{{ value }}" {% if value == duration %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
+        </div>
 
-      <div class="filter-group">
-        <a href="{% url 'jobs:job_list' %}" class="reset">Reset filters</a>
-        <p class="hint">Refine your search to find the right opportunity.</p>
-      </div>
-
+        {% if has_filters %}
+        <a href="{% url 'jobs:job_list' %}" class="filters__reset">Reset filters</a>
+        {% endif %}
+      </details>
     </aside>
 
-
-    <!-- Job list -->
-    <section class="jobs" aria-live="polite">
+    <section class="jobs" aria-labelledby="jobs-title">
 
       <div class="jobs-head">
         <div>
-          <h2>Available jobs</h2>
-          <p class="count">
+          <h2 id="jobs-title" class="jobs-head__title">Available jobs</h2>
+          <p class="count" role="status">
             {% if page.paginator.count %}
               Showing {{ page.start_index }}{% if page.start_index != page.end_index %}–{{ page.end_index }}{% endif %} of {{ page.paginator.count }} job{{ page.paginator.count|pluralize }}
             {% else %}
@@ -110,7 +95,6 @@
 
         <div class="sort">
           <label for="sort">Sort by</label>
-
           <select name="sort" id="sort" class="select">
             {% for value, label in sorts %}
             <option value="{{ value }}" {% if sort == value %}selected{% endif %}>{{ label }}</option>
@@ -119,59 +103,50 @@
         </div>
       </div>
 
-    {% for job in jobs %}
-      <article class="job-card">
+      {% if active_filters %}
+      <ul class="active-filters" aria-label="Active filters">
+        {% for f in active_filters %}
+        <li><a href="{{ f.remove_url }}" class="chip chip--navy" aria-label="Remove filter: {{ f.label }}">{{ f.label }}
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></a></li>
+        {% endfor %}
+      </ul>
+      {% endif %}
 
-        <div class="job-icon">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3A31A5" stroke-width="1.8" aria-hidden="true">
-            <circle cx="12" cy="12" r="10"/>
-            <circle cx="12" cy="10" r="3"/>
-            <path d="M6 19c2-4 10-4 12 0"/>
-          </svg>
-        </div>
-
-        <div class="job-main">
-          <h3>{{ job.title }}</h3>
-          <p class="household">{{ job.household_name }} · {{ job.location }}</p>
-        </div>
-
-        <p class="rate">{{ job.payment_amount }} / {{ job.get_pay_period_display }}</p>
-
-        <div class="job-meta">
-          <span class="badge">{{ job.get_employment_type_display }}</span>
-          <span class="duration">{{ job.get_duration_display }}</span>
-          <span class="duration">Work date: {{ job.work_date|date:"M j, Y" }}</span>
-        </div>
-
-        <a href="{% url 'jobs:job_detail' job.pk %}" class="btn-primary job-action">View / Apply</a>
-
-      </article>
+      <div class="job-list">
+      {% for job in jobs %}
+        {% include "includes/job_card.html" %}
       {% empty %}
-      <div class="empty">
-        {% if has_filters %}
-          <p>No jobs match your search.</p>
-          <a href="{% url 'jobs:job_list' %}" class="empty-link">Clear all filters</a>
-        {% else %}
-          <p>No jobs are open right now. Check back soon, or post one yourself.</p>
-          <a href="{% url 'jobs:post_job' %}" class="empty-link">Post a job</a>
-        {% endif %}
-      </div>
+        <div class="empty">
+          <span class="empty__icon" aria-hidden="true">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>
+          </span>
+          {% if has_filters %}
+            <h3>No jobs match your search.</h3>
+            <p>Try a different keyword or remove a filter.</p>
+            <a href="{% url 'jobs:job_list' %}" class="btn btn--ghost btn--sm">Clear all filters</a>
+          {% else %}
+            <h3>No jobs are open right now.</h3>
+            <p>New jobs show up here as households post them. Check back soon, or post one yourself.</p>
+            <a href="{% url 'jobs:post_job' %}" class="btn btn--primary btn--sm">Post a job</a>
+          {% endif %}
+        </div>
       {% endfor %}
+      </div>
 
       {% if page.paginator.num_pages > 1 %}
       <nav class="pagination" aria-label="Job pages">
         {% if page.has_previous %}
-        <a class="page-link" href="?{% if page_query %}{{ page_query }}&amp;{% endif %}page={{ page.previous_page_number }}" rel="prev">&larr; Previous</a>
+        <a class="btn btn--ghost btn--sm" href="?{% if page_query %}{{ page_query }}&amp;{% endif %}page={{ page.previous_page_number }}" rel="prev">&larr; Previous</a>
         {% else %}
-        <span class="page-link is-disabled" aria-disabled="true">&larr; Previous</span>
+        <span class="btn btn--ghost btn--sm" aria-disabled="true">&larr; Previous</span>
         {% endif %}
 
         <span class="page-status">Page {{ page.number }} of {{ page.paginator.num_pages }}</span>
 
         {% if page.has_next %}
-        <a class="page-link" href="?{% if page_query %}{{ page_query }}&amp;{% endif %}page={{ page.next_page_number }}" rel="next">Next &rarr;</a>
+        <a class="btn btn--ghost btn--sm" href="?{% if page_query %}{{ page_query }}&amp;{% endif %}page={{ page.next_page_number }}" rel="next">Next &rarr;</a>
         {% else %}
-        <span class="page-link is-disabled" aria-disabled="true">Next &rarr;</span>
+        <span class="btn btn--ghost btn--sm" aria-disabled="true">Next &rarr;</span>
         {% endif %}
       </nav>
       {% endif %}
@@ -181,17 +156,10 @@
       {% endif %}
 
     </section>
-
   </div>
-
 </form>
-
-<script>
-  // Re-run the search when a filter or the sort order changes (the Search button still works too).
-  document.getElementById("job-filters").addEventListener("change", function (e) {
-    if (e.target.name !== "q") this.submit();
-  });
-</script>
-
 {% endblock %}
 
+{% block extra_js %}
+<script src="{% static 'js/jobs.js' %}?v=1"></script>
+{% endblock %}

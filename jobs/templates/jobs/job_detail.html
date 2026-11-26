@@ -2,31 +2,34 @@
 {% load static %}
 
 {% block title %}{{ job.title }} - Raket{% endblock %}
+{% block meta_description %}{{ job.title }} in {{ job.location }}: {{ job.payment_phrase }}. Apply on Raket.{% endblock %}
 
 {% block extra_head %}
-  <link rel="stylesheet" href="{% static 'css/jobs.css' %}?v=4">
-  <link rel="stylesheet" href="{% static 'css/job_detail.css' %}?v=4">
+  <link rel="stylesheet" href="{% static 'css/job_detail.css' %}?v=5">
 {% endblock %}
 
 {% block content %}
 <div class="container detail">
 
-  <!-- Breadcrumb -->
-  <p class="breadcrumb">
+  <nav class="breadcrumb" aria-label="Breadcrumb">
     <a href="{% url 'jobs:home' %}">Home</a>
-    <span>/</span>
-    <a href="{% url 'jobs:job_list' %}">Job Vacancies</a>
-    <span>/</span>
-    <strong>Job Details</strong>
-  </p>
+    <span aria-hidden="true">/</span>
+    <a href="{% url 'jobs:job_list' %}">Find jobs</a>
+    <span aria-hidden="true">/</span>
+    <span aria-current="page">{{ job.title }}</span>
+  </nav>
 
-  <!-- Title -->
   <header class="detail-head">
-    <div>
-      <p class="category">{{ job.get_category_display }}</p>
+    <span class="detail-head__icon">{% include "includes/category_icon.html" with category=job.category %}</span>
+    <div class="detail-head__text">
       <p class="category">{{ job.get_category_display }}</p>
       <h1>{{ job.title }}</h1>
-      <p class="engagement">{{ job.get_employment_type_display }} · {{ job.get_duration_display }} · {{ job.get_work_schedule_display }}</p>
+      <p class="engagement">{{ job.household_name }} · {{ job.location }}</p>
+      <ul class="detail-head__chips">
+        <li class="chip chip--lime">{{ job.get_employment_type_display }}</li>
+        <li class="chip">{{ job.get_duration_display }}</li>
+        <li class="chip">{{ job.get_work_schedule_display }}</li>
+      </ul>
     </div>
 
     {% if job.status == 'closed' %}
@@ -36,101 +39,56 @@
     {% endif %}
   </header>
 
-
   <div class="detail-layout">
 
-    <!-- Left column -->
     <div class="detail-main">
-
-      <section class="card">
-        <h2>Job Description</h2>
-
-        <div class="description">{{ job.description|linebreaks }}</div>
+      <section class="card panel">
+        <h2>About the job</h2>
+        <div class="prose">{{ job.description|linebreaks }}</div>
 
         {% if job.qualifications %}
-        <h3>Basic Qualifications</h3>
-
+        <h3>What you need</h3>
         <ul class="qualifications">
-          {% for item in job.qualifications %}
-          <li>{{ item }}</li>
-          {% endfor %}
+          {% for item in job.qualifications %}<li>{{ item }}</li>{% endfor %}
         </ul>
         {% endif %}
-
-        <div class="work-location">
-          <strong>Work Location:</strong>
-          <span>{{ job.location }}</span>
-        </div>
       </section>
 
       {% if job.how_to_apply %}
-      <section class="card">
-        <h3 class="apply-title">How to Apply</h3>
-        <div class="apply-text">{{ job.how_to_apply|linebreaks }}</div>
+      <section class="card panel">
+        <h2>How to apply</h2>
+        <div class="prose">{{ job.how_to_apply|linebreaks }}</div>
       </section>
       {% endif %}
-
     </div>
 
-
-    <!-- Right column -->
-    <aside class="detail-side">
-
+    <aside class="detail-side" aria-label="Pay and application">
       <section class="card overview">
-        <h2>Job Overview</h2>
+        <p class="overview__label">Pay</p>
+        <p class="overview__pay">{{ job.payment_phrase }}</p>
 
-        {% if job.experience %}
-        <div class="overview-item">
-          <p class="label">Experience</p>
-          <p class="value">Not specified</p>
-        </div>
-        {% endif %}
+        <dl class="facts">
+          <div><dt>Work date</dt><dd>{{ job.work_date|date:"F j, Y" }}</dd></div>
+          <div><dt>Location</dt><dd>{{ job.location }}</dd></div>
+          {% if job.experience %}<div><dt>Experience</dt><dd>{{ job.experience }}</dd></div>{% endif %}
+          {% if job.industry %}<div><dt>Industry</dt><dd>{{ job.industry }}</dd></div>{% endif %}
+          <div><dt>Posted by</dt><dd>{{ job.household_name }}</dd></div>
+          <div><dt>Date posted</dt><dd>{{ job.created_at|date:"F j, Y" }}</dd></div>
+        </dl>
 
-        <div class="overview-item">
-          <p class="label">Location</p>
-          <p class="value">{{ job.location }}</p>
-          <p class="value">{{ job.location }}</p>
-        </div>
-
-        <div class="overview-item">
-          <p class="label">Offered Salary</p>
-          <p class="value salary">{{ job.payment_phrase }}</p>
-        </div>
-
-        <div class="overview-item">
-          <p class="label">Work Date</p>
-          <p class="value">{{ job.work_date|date:"F j, Y" }}</p>
-        </div>
-
-        {% if job.industry %}
-        <div class="overview-item">
-          <p class="label">Industry</p>
-          <p class="value">{{ job.industry }}</p>
-        </div>
-        {% endif %}
-
-        <div class="overview-item">
-          <p class="label">Posted By</p>
-          <p class="value">{{ job.household_name }}</p>
-        </div>
-
-        <div class="overview-item">
-          <p class="label">Date Posted</p>
-          <p class="value">{{ job.created_at|date:"F j, Y" }}</p>
-        </div>
-
-        <!-- Apply (state decided in views.job_detail) -->
+        {# Apply (state decided in views.job_detail) #}
+        <div class="apply">
         {% if apply_state == 'can_apply' %}
         <div data-apply data-url="{% url 'api:job_apply' job_id=job.pk %}">
-          <button type="button" class="apply-now" data-apply-open aria-expanded="false" aria-controls="apply-panel">Apply Now</button>
+          <button type="button" class="btn btn--primary btn--lg btn--block" data-apply-open aria-expanded="false" aria-controls="apply-panel">Apply now</button>
 
           <form class="apply-panel" id="apply-panel" hidden novalidate>
             <label for="cover_note">Message to the household <span class="optional">(optional)</span></label>
-            <textarea id="cover_note" name="cover_note" rows="4" maxlength="2000" placeholder="Introduce yourself, and mention any experience or when you're available."></textarea>
+            <textarea id="cover_note" name="cover_note" class="textarea" rows="4" maxlength="2000" placeholder="Introduce yourself, and mention any experience or when you're available."></textarea>
             <p class="apply-error" role="alert" data-apply-error hidden></p>
             <div class="apply-actions">
-              <button type="submit" class="apply-now apply-now--submit">Submit application</button>
-              <button type="button" class="apply-cancel" data-apply-cancel>Cancel</button>
+              <button type="submit" class="btn btn--primary">Submit application</button>
+              <button type="button" class="btn btn--ghost" data-apply-cancel>Cancel</button>
             </div>
           </form>
 
@@ -144,13 +102,13 @@
             Status: <strong>{{ application.get_status_display }}</strong>
           </p>
           {% if application.status != 'hired' %}
-          <button type="button" class="apply-cancel apply-cancel--block" data-withdraw>Withdraw application</button>
+          <button type="button" class="btn btn--ghost btn--block" data-withdraw>Withdraw application</button>
           <p class="apply-error" role="alert" data-apply-error hidden></p>
           {% endif %}
         </div>
 
         {% elif apply_state == 'anonymous' %}
-        <a href="{% url 'accounts:signin' %}?next={{ request.path|urlencode }}" class="apply-now">Sign in to apply</a>
+        <a href="{% url 'accounts:signin' %}?next={{ request.path|urlencode }}" class="btn btn--primary btn--lg btn--block">Sign in to apply</a>
         <p class="apply-hint">New here? <a href="{% url 'accounts:signup' %}?next={{ request.path|urlencode }}">Create a job seeker account</a>.</p>
 
         {% elif apply_state == 'owner' %}
@@ -162,14 +120,13 @@
         {% else %}
         <p class="apply-note">This job is no longer accepting applicants.</p>
         {% endif %}
+        </div>
       </section>
 
-      <a href="{% url 'jobs:job_list' %}" class="back-btn">Back to Jobs</a>
-
+      <a href="{% url 'jobs:job_list' %}" class="back-btn">&larr; Back to all jobs</a>
     </aside>
 
   </div>
-
 </div>
 {% endblock %}
 

@@ -1,51 +1,72 @@
-/* Navbar: dropdowns (click to slide open/closed, one open at a time, close on outside
-   click, link click or Escape) and Sign Out. Loaded by templates/base.html. */
+/* Header: mobile menu toggle (closes on Escape, outside click or link click) and Sign out.
+   Loaded by templates/base.html. */
 (function () {
   "use strict";
 
-  var CLOSE_MS = 550; // slightly longer than the CSS close animation
-  var timers = new WeakMap();
+  var toggle = document.querySelector("[data-menu-toggle]");
+  var menu = document.querySelector("[data-menu]");
 
-  function setOpen(dropdown, open) {
-    var menu = dropdown.querySelector(".navbar__menu");
-    var trigger = dropdown.querySelector(".navbar__link");
-    var isOpen = dropdown.classList.contains("is-open");
-    if (open === isOpen) return;
+  function setMenu(open) {
+    if (!toggle || !menu) return;
+    menu.classList.toggle("is-open", open);
+    toggle.setAttribute("aria-expanded", String(open));
+  }
 
-    clearTimeout(timers.get(dropdown));
+  if (toggle && menu) {
+    toggle.addEventListener("click", function () {
+      setMenu(toggle.getAttribute("aria-expanded") !== "true");
+    });
+
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape" && toggle.getAttribute("aria-expanded") === "true") {
+        setMenu(false);
+        toggle.focus();
+      }
+    });
+
+    document.addEventListener("click", function (e) {
+      if (toggle.getAttribute("aria-expanded") !== "true") return;
+      if (!menu.contains(e.target) && !toggle.contains(e.target)) setMenu(false);
+    });
+
+    menu.addEventListener("click", function (e) {
+      if (e.target.closest("a")) setMenu(false);
+    });
+  }
+
+  // Desktop dropdowns: click to open, one at a time, Escape or outside click closes.
+  var dropdowns = [].slice.call(document.querySelectorAll("[data-dropdown]"));
+
+  function setDropdown(dropdown, open) {
+    var trigger = dropdown.querySelector("[data-dropdown-toggle]");
+    dropdown.querySelector(".navbar__menu").hidden = !open;
+    dropdown.classList.toggle("is-open", open);
     trigger.setAttribute("aria-expanded", String(open));
-
-    if (open) {
-      menu.hidden = false;
-      void menu.offsetHeight; // let the browser paint the closed state first
-      dropdown.classList.add("is-open"); // ...then animate to open
-    } else {
-      dropdown.classList.remove("is-open"); // animate closed...
-      timers.set(dropdown, setTimeout(function () { menu.hidden = true; }, CLOSE_MS));
-    }
   }
 
   document.addEventListener("click", function (e) {
-    var toggle = e.target.closest("[data-dropdown-toggle]");
-    var current = toggle ? toggle.closest("[data-dropdown]") : null;
-
-    document.querySelectorAll("[data-dropdown]").forEach(function (dropdown) {
-      var willOpen = dropdown === current && !dropdown.classList.contains("is-open");
-      setOpen(dropdown, willOpen);
-      if (dropdown === current && !willOpen) dropdown.querySelector(".navbar__link").focus();
+    var toggleBtn = e.target.closest("[data-dropdown-toggle]");
+    var current = toggleBtn ? toggleBtn.closest("[data-dropdown]") : null;
+    dropdowns.forEach(function (d) {
+      setDropdown(d, d === current && !d.classList.contains("is-open"));
     });
   });
 
   document.addEventListener("keydown", function (e) {
     if (e.key !== "Escape") return;
-    document.querySelectorAll("[data-dropdown]").forEach(function (d) { setOpen(d, false); });
+    dropdowns.forEach(function (d) {
+      if (!d.classList.contains("is-open")) return;
+      setDropdown(d, false);
+      d.querySelector("[data-dropdown-toggle]").focus();
+    });
   });
 
-  // Sign Out -> POST /api/auth/logout/ then back to the home page.
+  // Sign out -> POST /api/auth/logout/ then back to the home page.
   document.addEventListener("click", function (e) {
     var button = e.target.closest("[data-logout]");
     if (!button || !window.RaketAPI) return;
     button.disabled = true;
+    button.textContent = "Signing out…";
     window.RaketAPI.post("/api/auth/logout/").then(function () {
       window.location.href = "/";
     });

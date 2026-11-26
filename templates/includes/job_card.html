@@ -1,0 +1,27 @@
+{# One job in a list. Expects `job` (from jobs_with_poster / public_jobs). #}
+<article class="job-card">
+  <span class="job-card__icon">{% include "includes/category_icon.html" with category=job.category %}</span>
+
+  <div class="job-card__main">
+    <p class="job-card__cat">{{ job.get_category_display }}</p>
+    <h3 class="job-card__title">
+      <a href="{% url 'jobs:job_detail' job.pk %}" class="job-card__link">{{ job.title }}</a>
+    </h3>
+    <p class="job-card__where">{{ job.household_name }} · {{ job.location }}</p>
+  </div>
+
+  <p class="job-card__rate">{{ job.payment_amount }} / {{ job.get_pay_period_display }}</p>
+
+  <ul class="job-card__meta">
+    <li class="chip chip--lime">{{ job.get_employment_type_display }}</li>
+    <li class="chip">{{ job.get_duration_display }}</li>
+    <li class="chip">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>
+      <span class="sr-only">Work date:</span>{{ job.work_date|date:"M j, Y" }}
+    </li>
+  </ul>
+
+  <span class="job-card__cta" aria-hidden="true">View job
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+  </span>
+</article>

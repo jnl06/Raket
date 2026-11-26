@@ -4,13 +4,12 @@
 {% block title %}Sign in - Raket{% endblock %}
 
 {% block extra_head %}
-  <link rel="stylesheet" href="{% static 'css/auth.css' %}?v=1">
+  <link rel="stylesheet" href="{% static 'css/auth.css' %}?v=2">
 {% endblock %}
 
 {% block content %}
 <section class="auth">
   <div class="auth-card">
-    <p class="auth-eyebrow">WELCOME BACK</p>
     <h1>Sign in to Raket</h1>
     <p class="auth-sub">Find short-term jobs or manage the ones you've posted.</p>
 
@@ -37,7 +36,7 @@
         <a href="{% url 'accounts:forgot_password' %}" class="auth-link">Forgot password?</a>
       </div>
 
-      <button type="submit" class="auth-submit" data-busy-label="Signing in…">Sign In</button>
+      <button type="submit" class="auth-submit" data-busy-label="Signing in…">Sign in</button>
     </form>
 
     <p class="auth-foot">New to Raket? <a class="auth-link" href="{% url 'accounts:signup' %}{% if next %}?next={{ next|urlencode }}{% endif %}">Create an account</a></p>

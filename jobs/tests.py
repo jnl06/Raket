@@ -298,11 +298,11 @@ class AuthPageTests(PageTestCase):
 
     def test_navbar_reflects_session(self):
         r = self.client.get(reverse("jobs:home"))
-        self.assertContains(r, "Sign In")
+        self.assertContains(r, "Sign in")
         r = self.login(self.seeker).get(reverse("jobs:home"))
         self.assertContains(r, "Ana Cruz")
-        self.assertContains(r, "Sign Out")
-        self.assertNotContains(r, ">Sign In<")
+        self.assertContains(r, "Sign out")
+        self.assertNotContains(r, ">Sign in<")
 
     def test_api_is_mounted(self):
         self.assertEqual(self.client.get("/api/auth/csrf/").status_code, 200)
@@ -321,3 +321,66 @@ class ModelTests(PageTestCase):
     def test_payment_text(self):
         j = make_job(self.provider, estimated_payment=1250.5, max_payment=2000, pay_period="job")
         self.assertEqual(j.payment_phrase, "₱1,250.50 - 2,000 for the whole job")
+
+
+class ManagePagesTests(PageTestCase):
+    """Applied jobs, Manage posted jobs and Manage applicants."""
+
+    def setUp(self):
+        super().setUp()
+        self.job = make_job(self.provider, title="Garden help")
+        self.other = make_user("other@example.com", Profile.Role.PROVIDER, "Other Household")
+        self.app = Application.objects.create(
+            job=self.job, applicant=self.seeker, cover_note="Available all week."
+        )
+
+    def test_pages_send_visitors_to_sign_in(self):
+        for name in ("jobs:my_applications", "jobs:my_jobs", "jobs:manage_applicants"):
+            r = self.client.get(reverse(name))
+            self.assertEqual(r.status_code, 302, name)
+            self.assertIn(reverse("accounts:signin"), r["Location"])
+
+    def test_pages_reject_the_wrong_role(self):
+        r = self.login(self.seeker).get(reverse("jobs:my_jobs"))
+        self.assertRedirects(r, reverse("jobs:home"))
+        r = self.login(self.provider).get(reverse("jobs:my_applications"))
+        self.assertRedirects(r, reverse("jobs:home"))
+
+    def test_applied_jobs_lists_my_applications_with_filters(self):
+        c = self.login(self.seeker)
+        r = c.get(reverse("jobs:my_applications"))
+        self.assertContains(r, "Garden help")
+        self.assertContains(r, "Available all week.")
+        r = c.get(reverse("jobs:my_applications"), {"status": "hired"})
+        self.assertNotContains(r, "Garden help")
+        self.assertContains(r, "No applications with this status.")
+
+    def test_posted_jobs_shows_only_my_jobs_with_counts(self):
+        make_job(self.other, title="Not mine")
+        r = self.login(self.provider).get(reverse("jobs:my_jobs"))
+        self.assertContains(r, "Garden help")
+        self.assertNotContains(r, "Not mine")
+        self.assertContains(r, "1 applicant")
+
+    def test_applicants_hide_contact_until_hired(self):
+        c = self.login(self.provider)
+        r = c.get(reverse("jobs:manage_applicants"))
+        self.assertContains(r, "Ana Cruz")
+        self.assertContains(r, "Contact details show after you hire.")
+        self.assertNotContains(r, "09171234567")
+        self.app.status = Application.Status.HIRED
+        self.app.save()
+        r = c.get(reverse("jobs:manage_applicants"))
+        self.assertContains(r, "09171234567")
+
+    def test_applicants_of_other_households_stay_private(self):
+        c = self.login(self.other)
+        r = c.get(reverse("jobs:manage_applicants"))
+        self.assertNotContains(r, "Ana Cruz")
+        r = c.get(reverse("jobs:manage_applicants"), {"job": self.job.pk})
+        self.assertNotContains(r, "Ana Cruz")
+
+    def test_navbar_links_to_manage_pages(self):
+        r = self.client.get(reverse("jobs:home"))
+        for name in ("jobs:my_applications", "jobs:my_jobs", "jobs:manage_applicants"):
+            self.assertContains(r, f'href="{reverse(name)}"')

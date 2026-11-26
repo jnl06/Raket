@@ -1,79 +1,65 @@
 {% load static %}
-{# Site navbar (Figma: "Navbar" component). Included by base.html. #}
+{# Site header. Included by base.html. The mobile panel is toggled by static/js/navbar.js. #}
+{% url 'jobs:home' as home_url %}
+{% url 'jobs:job_list' as jobs_url %}
+{% url 'jobs:post_job' as post_url %}
 <header class="navbar">
-  <a href="{% url 'jobs:home' %}" class="navbar__logo" aria-label="Raket home">
-    <img src="{% static 'image/raket_logo.png' %}" alt="Raket">
-  </a>
-
-  <nav class="navbar__links" aria-label="Main">
-    <a href="{% url 'jobs:home' %}"
-       class="navbar__link{% if request.resolver_match.view_name == 'jobs:home' %} is-active{% endif %}"
-       {% if request.resolver_match.view_name == 'jobs:home' %}aria-current="page"{% endif %}>Home</a>
-
-    {# ---- For workers dropdown ---- #}
-    <div class="navbar__item" data-dropdown>
-      <button type="button"
-              class="navbar__link navbar__link--menu{% if request.resolver_match.view_name == 'jobs:job_list' or request.resolver_match.view_name == 'jobs:job_detail' %} is-active{% endif %}"
-              aria-expanded="false" aria-controls="menu-workers" data-dropdown-toggle>
-        For workers
-        <svg class="navbar__caret" width="18" height="18" viewBox="0 0 20 20" aria-hidden="true"><path d="M5 7l5 5 5-5z" fill="currentColor"/></svg>
-      </button>
-      <div class="navbar__menu" id="menu-workers" hidden>
-        <button type="button" class="navbar__menu-head" data-dropdown-toggle aria-label="Close For workers menu">
-          <span>For workers</span>
-          <svg width="15" height="15" viewBox="0 0 20 20" aria-hidden="true"><path d="M2 16L10 3l8 13z" fill="currentColor"/></svg>
-        </button>
-        <div class="navbar__menu-body">
-          <div class="navbar__menu-inner">
-          <ul class="navbar__menu-list">
-            <li><a href="{% url 'jobs:job_list' %}">Find jobs</a></li>
-            <li><span class="navbar__soon" title="Coming soon">Manage applied jobs</span></li>
-          </ul>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    {# ---- For households dropdown ---- #}
-    <div class="navbar__item navbar__item--wide" data-dropdown>
-      <button type="button"
-              class="navbar__link navbar__link--menu{% if request.resolver_match.view_name == 'jobs:post_job' %} is-active{% endif %}"
-              aria-expanded="false" aria-controls="menu-households" data-dropdown-toggle>
-        For households
-        <svg class="navbar__caret" width="18" height="18" viewBox="0 0 20 20" aria-hidden="true"><path d="M5 7l5 5 5-5z" fill="currentColor"/></svg>
-      </button>
-      <div class="navbar__menu" id="menu-households" hidden>
-        <button type="button" class="navbar__menu-head" data-dropdown-toggle aria-label="Close For households menu">
-          <span>For households</span>
-          <svg width="15" height="15" viewBox="0 0 20 20" aria-hidden="true"><path d="M2 16L10 3l8 13z" fill="currentColor"/></svg>
-        </button>
-        <div class="navbar__menu-body">
-          <div class="navbar__menu-inner">
-          <ul class="navbar__menu-list">
-            <li><a href="{% url 'jobs:post_job' %}">Post jobs</a></li>
-            <li><span class="navbar__soon" title="Coming soon">Manage applicants</span></li>
-            <li><span class="navbar__soon" title="Coming soon">Manage posted jobs</span></li>
-          </ul>
-          </div>
-        </div>
-      </div>
-    </div>
-  </nav>
-
-  <div class="navbar__account">
-    <a href="{% url 'jobs:job_list' %}" class="navbar__search" aria-label="Search jobs">
-      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true">
-        <circle cx="11" cy="11" r="7"/>
-        <path d="M16.5 16.5L21 21"/>
-      </svg>
+  <div class="navbar__bar container">
+    <a href="{{ home_url }}" class="navbar__logo" aria-label="Raket home">
+      <img src="{% static 'image/raket_logo.png' %}" alt="Raket" width="84" height="44">
     </a>
-    <span class="navbar__separator" aria-hidden="true"></span>
-    {% if user.is_authenticated %}
-    <span class="navbar__user" title="{{ account_name }}">{{ account_name }}</span>
-    <button type="button" class="navbar__signin navbar__signout" data-logout>Sign Out</button>
-    {% else %}
-    <a href="{% url 'accounts:signup' %}" class="navbar__signup">Sign Up</a>
-    <a href="{% url 'accounts:signin' %}{% if request.path != '/' %}?next={{ request.get_full_path|urlencode }}{% endif %}" class="navbar__signin">Sign In</a>
-    {% endif %}
+
+    <nav class="navbar__links" id="site-menu" aria-label="Main" data-menu>
+      <a href="{{ home_url }}" class="navbar__link{% if request.path == home_url %} is-active{% endif %}"{% if request.path == home_url %} aria-current="page"{% endif %}>Home</a>
+      {% url 'jobs:my_applications' as applied_url %}
+      {% url 'jobs:my_jobs' as posted_url %}
+      {% url 'jobs:manage_applicants' as applicants_url %}
+      {% with view=request.resolver_match.view_name %}
+
+      <div class="navbar__item" data-dropdown>
+        <button type="button" class="navbar__link navbar__link--menu{% if view == 'jobs:job_list' or view == 'jobs:job_detail' or view == 'jobs:my_applications' %} is-active{% endif %}" aria-expanded="false" aria-controls="menu-workers" data-dropdown-toggle>
+          For workers
+          <svg class="navbar__caret" width="16" height="16" viewBox="0 0 20 20" aria-hidden="true"><path d="M5 7l5 5 5-5z" fill="currentColor"/></svg>
+        </button>
+        <ul class="navbar__menu" id="menu-workers" hidden>
+          <li><a href="{{ jobs_url }}"{% if view == 'jobs:job_list' %} aria-current="page"{% endif %}>Find jobs</a></li>
+          <li><a href="{{ applied_url }}"{% if view == 'jobs:my_applications' %} aria-current="page"{% endif %}>Applied jobs</a></li>
+        </ul>
+      </div>
+
+      <div class="navbar__item" data-dropdown>
+        <button type="button" class="navbar__link navbar__link--menu{% if view == 'jobs:post_job' or view == 'jobs:my_jobs' or view == 'jobs:manage_applicants' %} is-active{% endif %}" aria-expanded="false" aria-controls="menu-households" data-dropdown-toggle>
+          For households
+          <svg class="navbar__caret" width="16" height="16" viewBox="0 0 20 20" aria-hidden="true"><path d="M5 7l5 5 5-5z" fill="currentColor"/></svg>
+        </button>
+        <ul class="navbar__menu" id="menu-households" hidden>
+          <li><a href="{{ post_url }}"{% if view == 'jobs:post_job' %} aria-current="page"{% endif %}>Post a job</a></li>
+          <li><a href="{{ posted_url }}"{% if view == 'jobs:my_jobs' %} aria-current="page"{% endif %}>Manage posted jobs</a></li>
+          <li><a href="{{ applicants_url }}"{% if view == 'jobs:manage_applicants' %} aria-current="page"{% endif %}>Manage applicants</a></li>
+        </ul>
+      </div>
+      {% endwith %}
+
+      <div class="navbar__account">
+        {% if user.is_authenticated %}
+        <span class="navbar__user" title="{{ account_name }}">
+          <span class="navbar__avatar" aria-hidden="true">{{ account_name|slice:":1"|upper }}</span>
+          <span class="navbar__name">{{ account_name }}</span>
+        </span>
+        <button type="button" class="btn btn--ghost btn--sm" data-logout>Sign out</button>
+        {% else %}
+        <a href="{% url 'accounts:signin' %}{% if request.path != home_url %}?next={{ request.get_full_path|urlencode }}{% endif %}" class="btn btn--ghost btn--sm">Sign in</a>
+        <a href="{% url 'accounts:signup' %}" class="btn btn--primary btn--sm">Sign up</a>
+        {% endif %}
+      </div>
+    </nav>
+
+    <button type="button" class="navbar__toggle" aria-expanded="false" aria-controls="site-menu" data-menu-toggle>
+      <span class="sr-only">Menu</span>
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+        <path class="navbar__icon-open" d="M4 7h16M4 12h16M4 17h16"/>
+        <path class="navbar__icon-close" d="M6 6l12 12M18 6L6 18"/>
+      </svg>
+    </button>
   </div>
 </header>

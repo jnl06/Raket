@@ -1,159 +1,94 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}Post a Job | Raket{% endblock %}
+{% block title %}Post a job - Raket{% endblock %}
 
 {% block extra_head %}
-  <link rel="stylesheet" href="{% static 'css/post_job.css' %}">
+  <link rel="stylesheet" href="{% static 'css/post_job.css' %}?v=2">
 {% endblock %}
 
 {% block content %}
-<section class="page">
-  <h1 class="page-title">POST A JOB</h1>
-  <p class="page-subtitle">Provide the details of your short-term job opportunity</p>
+<div class="container page">
+  <header class="page-head-simple">
+    <h1>Post a job</h1>
+    <p>Tell workers what you need. Fields marked optional can be left blank.</p>
+  </header>
 
   <form class="job-form" action="{% url 'jobs:post_job' %}" method="post" novalidate>
     {% csrf_token %}
 
-    {% if form.non_field_errors %}
-    <div class="form-errors">{{ form.non_field_errors }}</div>
+    {% if form.errors %}
+    <div class="error-summary" role="alert" tabindex="-1" id="error-summary">
+      <h2>Please fix {{ form.errors|length }} thing{{ form.errors|length|pluralize }} before posting</h2>
+      <ul>
+        {% for field in form %}{% for error in field.errors %}
+        <li><a href="#{{ field.id_for_label }}">{{ field.label }}: {{ error }}</a></li>
+        {% endfor %}{% endfor %}
+        {% for error in form.non_field_errors %}<li>{{ error }}</li>{% endfor %}
+      </ul>
+    </div>
     {% endif %}
 
-    <div class="row two-col">
-      <div class="field{% if form.title.errors %} has-error{% endif %}">
-        {{ form.title.label_tag }}
-        {{ form.title }}
-        {{ form.title.errors }}
+    <fieldset class="card form-section">
+      <legend>The job</legend>
+      <div class="grid grid--2">
+        {% include "includes/form_field.html" with field=form.title %}
+        {% include "includes/form_field.html" with field=form.category %}
       </div>
-      <div class="field{% if form.category.errors %} has-error{% endif %}">
-        {{ form.category.label_tag }}
-        <div class="select-wrap">
-          {{ form.category }}
-          <svg class="chev" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8l8 8 8-8"/></svg>
-        </div>
-        {{ form.category.errors }}
-      </div>
-    </div>
+      {% include "includes/form_field.html" with field=form.description %}
+    </fieldset>
 
-    <div class="row">
-      <div class="field{% if form.description.errors %} has-error{% endif %}">
-        {{ form.description.label_tag }}
-        {{ form.description }}
-        {{ form.description.errors }}
+    <fieldset class="card form-section">
+      <legend>When and where</legend>
+      <div class="grid grid--2">
+        {% include "includes/form_field.html" with field=form.location %}
+        {% include "includes/form_field.html" with field=form.work_date %}
+        {% include "includes/form_field.html" with field=form.work_schedule %}
+        {% include "includes/form_field.html" with field=form.duration %}
+        {% include "includes/form_field.html" with field=form.employment_type %}
+        {% include "includes/form_field.html" with field=form.number_of_workers %}
       </div>
-    </div>
+    </fieldset>
 
-    <div class="row two-col">
-      <div class="field{% if form.location.errors %} has-error{% endif %}">
-        {{ form.location.label_tag }}
-        {{ form.location }}
-        {{ form.location.errors }}
+    <fieldset class="card form-section">
+      <legend>Pay</legend>
+      <div class="grid grid--3">
+        {% include "includes/form_field.html" with field=form.estimated_payment %}
+        {% include "includes/form_field.html" with field=form.max_payment optional=True hint="For a range, like 500 to 900." %}
+        {% include "includes/form_field.html" with field=form.pay_period %}
       </div>
-      <div class="field{% if form.work_date.errors %} has-error{% endif %}">
-        {{ form.work_date.label_tag }}
-        {{ form.work_date }}
-        {{ form.work_date.errors }}
-      </div>
-    </div>
+    </fieldset>
 
-    <div class="row two-col">
-      <div class="field{% if form.work_schedule.errors %} has-error{% endif %}">
-        {{ form.work_schedule.label_tag }}
-        <div class="select-wrap">
-          {{ form.work_schedule }}
-          <svg class="chev" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8l8 8 8-8"/></svg>
-        </div>
-        {{ form.work_schedule.errors }}
+    <fieldset class="card form-section">
+      <legend>Details for applicants</legend>
+      <div class="grid grid--2">
+        {% include "includes/form_field.html" with field=form.requirements optional=True hint="One per line. They show as a checklist." %}
+        {% include "includes/form_field.html" with field=form.how_to_apply optional=True %}
+        {% include "includes/form_field.html" with field=form.experience optional=True %}
+        {% include "includes/form_field.html" with field=form.industry optional=True %}
       </div>
-      <div class="field{% if form.employment_type.errors %} has-error{% endif %}">
-        {{ form.employment_type.label_tag }}
-        <div class="select-wrap">
-          {{ form.employment_type }}
-          <svg class="chev" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8l8 8 8-8"/></svg>
-        </div>
-        {{ form.employment_type.errors }}
-      </div>
-    </div>
+    </fieldset>
 
-    <div class="row two-col align-top">
-      <div class="field{% if form.duration.errors %} has-error{% endif %}">
-        {{ form.duration.label_tag }}
-        <div class="select-wrap">
-          {{ form.duration }}
-          <svg class="chev" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8l8 8 8-8"/></svg>
-        </div>
-        {{ form.duration.errors }}
-      </div>
-      <div class="field{% if form.number_of_workers.errors %} has-error{% endif %}">
-        {{ form.number_of_workers.label_tag }}
-        <div class="select-wrap">
-          {{ form.number_of_workers }}
-          <svg class="icon-right spinner" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 9l5-5 5 5M7 15l5 5 5-5"/></svg>
-        </div>
-        {{ form.number_of_workers.errors }}
-      </div>
-    </div>
-
-    <div class="row two-col align-top">
-      <div class="field{% if form.estimated_payment.errors %} has-error{% endif %}">
-        {{ form.estimated_payment.label_tag }}
-        {{ form.estimated_payment }}
-        {{ form.estimated_payment.errors }}
-      </div>
-      <div class="field{% if form.max_payment.errors %} has-error{% endif %}">
-        <label for="{{ form.max_payment.id_for_label }}">{{ form.max_payment.label }} <span class="optional">(optional)</span></label>
-        {{ form.max_payment }}
-        {{ form.max_payment.errors }}
-      </div>
-    </div>
-
-    <div class="row two-col align-top">
-      <div class="field{% if form.pay_period.errors %} has-error{% endif %}">
-        {{ form.pay_period.label_tag }}
-        <div class="select-wrap">
-          {{ form.pay_period }}
-          <svg class="chev" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8l8 8 8-8"/></svg>
-        </div>
-        {{ form.pay_period.errors }}
-      </div>
-      <div class="field{% if form.experience.errors %} has-error{% endif %}">
-        <label for="{{ form.experience.id_for_label }}">{{ form.experience.label }} <span class="optional">(optional)</span></label>
-        {{ form.experience }}
-        {{ form.experience.errors }}
-      </div>
-    </div>
-
-    <div class="row two-col align-top">
-      <div class="field{% if form.industry.errors %} has-error{% endif %}">
-        <label for="{{ form.industry.id_for_label }}">{{ form.industry.label }} <span class="optional">(optional)</span></label>
-        {{ form.industry }}
-        {{ form.industry.errors }}
-      </div>
-      <div class="field{% if form.requirements.errors %} has-error{% endif %}">
-        <label for="{{ form.requirements.id_for_label }}">{{ form.requirements.label }} <span class="optional">(optional)</span></label>
-        {{ form.requirements }}
-        {{ form.requirements.errors }}
-      </div>
-    </div>
-
-    <div class="row">
-      <div class="field{% if form.how_to_apply.errors %} has-error{% endif %}">
-        <label for="{{ form.how_to_apply.id_for_label }}">{{ form.how_to_apply.label }} <span class="optional">(optional)</span></label>
-        {{ form.how_to_apply }}
-        {{ form.how_to_apply.errors }}
-      </div>
-    </div>
-
-    <div class="confirm">
-      {{ form.confirm }}
-      {{ form.confirm.label_tag }}
-      {{ form.confirm.errors }}
+    <div class="confirm{% if form.confirm.errors %} has-error{% endif %}">
+      <label class="confirm__label">
+        {{ form.confirm }}
+        <span>{{ form.confirm.label }}</span>
+      </label>
+      {% for error in form.confirm.errors %}<p class="field__error">{{ error }}</p>{% endfor %}
     </div>
 
     <div class="actions">
-      <button type="submit" class="btn-post">Post Job</button>
-      <a href="{% url 'jobs:home' %}" class="btn-cancel">Cancel</a>
+      <button type="submit" class="btn btn--primary btn--lg">Post job</button>
+      <a href="{% url 'jobs:home' %}" class="btn btn--ghost btn--lg">Cancel</a>
     </div>
   </form>
-</section>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  // Move focus to the error summary so keyboard and screen reader users land on it.
+  var summary = document.getElementById("error-summary");
+  if (summary) summary.focus();
+</script>
 {% endblock %}

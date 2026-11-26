@@ -1,45 +1,238 @@
-/* ---------- Site-wide tokens + resets (loaded by templates/base.html) ---------- */
-:root {
-  --bg: #fcfcfc;
-  --text: #111111;
-  --placeholder: #7a7a7a;
-  --border: #8a8a8a;
-  --navy: #1e2a5e;
-  --blue: #3f3fef;
-  --radius: 12px;
+/* ==========================================================================
+   Raket design system: tokens, reset, type and shared components.
+   Brand colours come from the logo: deep navy (#212B60) and rocket lime (#B7CE7C).
+   Loaded on every page by templates/base.html.
+   ========================================================================== */
 
-  /* Brand colours from the Figma navbar */
-  --indigo: #3730a3;
-  --ink: #25324a;
-  --surface-muted: #f4f5f9;
-  --line: #e4e7ee;
+:root {
+  /* Colour */
+  --navy: #212b60;
+  --navy-deep: #151c45;
+  --navy-hover: #2b3678;
+  --lime: #b7ce7c;
+  --lime-hover: #c6da92;
+  --lime-ink: #4a6414;          /* lime-family text that passes AA on white */
+  --lime-wash: #eef4dc;
+  --paper: #f4f5f9;             /* page background */
+  --surface: #ffffff;
+  --line: #e1e4ee;
+  --line-strong: #c8cddd;
+  --text: #171c3a;
+  --muted: #5a6382;
+  --danger: #b42318;
+  --danger-wash: #fdeeed;
+  --success: #1d6b3a;
+  --success-wash: #e9f6ed;
+
+  /* Type */
+  --font-display: "Bricolage Grotesque", "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-body: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+
+  /* Shape and depth */
+  --radius-s: 8px;
+  --radius-m: 12px;
+  --radius-l: 20px;
+  --shadow-s: 0 1px 2px rgba(21, 28, 69, 0.06);
+  --shadow-m: 0 8px 24px rgba(21, 28, 69, 0.08);
+
+  /* Layout */
+  --page-width: 1180px;
+  --gutter: clamp(16px, 4vw, 32px);
+  --nav-height: 72px;
+
+  /* Legacy names still referenced by the sign-in pages and old rules */
+  --indigo: var(--navy);
+  --ink: var(--text);
+  --surface-muted: var(--paper);
 }
 
-* { box-sizing: border-box; }
+*, *::before, *::after { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; scroll-padding-top: calc(var(--nav-height) + 16px); }
 
 body {
   margin: 0;
-  font-family: "Inter", Arial, sans-serif;
-  background: var(--bg);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.55;
   color: var(--text);
+  background: var(--paper);
+  -webkit-font-smoothing: antialiased;
+}
+main { flex: 1 0 auto; }
+
+h1, h2, h3, h4 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  color: var(--navy);
+}
+p { margin: 0; }
+ul, ol { margin: 0; padding: 0; list-style: none; }
+a { color: inherit; text-decoration: none; }
+img { max-width: 100%; }
+button, input, select, textarea { font: inherit; color: inherit; }
+
+.container {
+  width: 100%;
+  max-width: calc(var(--page-width) + var(--gutter) * 2);
+  margin: 0 auto;
+  padding-inline: var(--gutter);
 }
 
-a { color: inherit; text-decoration: none; }
+/* ---------- Accessibility helpers ---------- */
+.skip-link {
+  position: absolute;
+  left: 12px;
+  top: -60px;
+  z-index: 300;
+  padding: 10px 16px;
+  border-radius: var(--radius-s);
+  background: var(--navy);
+  color: #fff;
+  font-weight: 600;
+}
+.skip-link:focus { top: 12px; }
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+:focus-visible {
+  outline: 3px solid rgba(33, 43, 96, 0.55);
+  outline-offset: 2px;
+}
+
+/* ---------- Buttons ---------- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 46px;
+  padding: 0 22px;
+  border: 1.5px solid transparent;
+  border-radius: var(--radius-m);
+  font-family: var(--font-body);
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color 0.15s, border-color 0.15s, color 0.15s, transform 0.1s;
+}
+.btn:active { transform: translateY(1px); }
+.btn:disabled, .btn[aria-disabled="true"] { opacity: 0.6; cursor: not-allowed; }
+
+.btn--primary { background: var(--navy); color: #fff; }
+.btn--primary:hover { background: var(--navy-hover); }
+
+.btn--lime { background: var(--lime); color: var(--navy-deep); }
+.btn--lime:hover { background: var(--lime-hover); }
+
+.btn--ghost { background: transparent; color: var(--navy); border-color: var(--line-strong); }
+.btn--ghost:hover { border-color: var(--navy); background: var(--surface); }
+
+.btn--sm { min-height: 38px; padding: 0 16px; font-size: 14px; }
+.btn--lg { min-height: 54px; padding: 0 28px; font-size: 16px; }
+.btn--block { display: flex; width: 100%; }
+
+/* Old class names kept so nothing breaks on pages not yet migrated */
+.btn-primary { display: inline-flex; align-items: center; justify-content: center; min-height: 46px; padding: 0 22px; border: 0; border-radius: var(--radius-m); background: var(--navy); color: #fff; font-weight: 600; cursor: pointer; }
+.btn-primary:hover { background: var(--navy-hover); }
+
+/* ---------- Form controls ---------- */
+.input, .select, .textarea {
+  width: 100%;
+  min-height: 46px;
+  padding: 0 14px;
+  background: var(--surface);
+  color: var(--text);
+  border: 1.5px solid var(--line-strong);
+  border-radius: var(--radius-m);
+  font-size: 16px;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.textarea { padding: 12px 14px; min-height: 120px; line-height: 1.5; resize: vertical; }
+.input::placeholder, .textarea::placeholder { color: #7d85a3; opacity: 1; }
+.input:hover, .select:hover, .textarea:hover { border-color: #9aa2c0; }
+.input:focus, .select:focus, .textarea:focus {
+  outline: none;
+  border-color: var(--navy);
+  box-shadow: 0 0 0 4px rgba(33, 43, 96, 0.14);
+}
+.select {
+  appearance: none;
+  padding-right: 40px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%23212b60' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  cursor: pointer;
+}
+
+/* ---------- Chips and badges ---------- */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.3;
+}
+.chip--lime { background: var(--lime-wash); border-color: #d4e3ab; color: var(--lime-ink); }
+.chip--navy { background: var(--navy); border-color: var(--navy); color: #fff; }
+.chip--muted { background: #eceef5; color: var(--muted); }
+
+/* ---------- Cards ---------- */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-l);
+  box-shadow: var(--shadow-s);
+}
 
 /* ---------- Django messages ---------- */
 .messages {
-  list-style: none;
-  max-width: 1130px;
-  margin: 20px auto 0;
-  padding: 0 24px;
+  width: 100%;
+  max-width: calc(var(--page-width) + var(--gutter) * 2);
+  margin: 16px auto 0;
+  padding-inline: var(--gutter);
+  display: grid;
+  gap: 8px;
 }
 .message {
+  display: flex;
+  align-items: center;
+  gap: 10px;
   padding: 12px 16px;
-  border-radius: 8px;
-  font-size: 16px;
-  background: #eef0ff;
-  border: 1px solid #c9ccf5;
-  color: var(--indigo);
+  border-radius: var(--radius-m);
+  font-size: 15px;
+  font-weight: 500;
+  background: #eaedf8;
+  border: 1px solid #ccd2ec;
+  color: var(--navy);
 }
-.message.success { background: #eaf7ee; border-color: #b9e2c6; color: #1c6b3a; }
-.message.error   { background: #fdeeee; border-color: #f2c1c1; color: #a12626; }
+.message.success { background: var(--success-wash); border-color: #b9e2c6; color: var(--success); }
+.message.error   { background: var(--danger-wash); border-color: #f4c3bf; color: var(--danger); }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition: none !important; animation: none !important; scroll-behavior: auto !important; }
+}

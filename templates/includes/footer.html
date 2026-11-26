@@ -1,42 +1,36 @@
 {% load static %}
 <footer class="footer">
-  <div class="footer__top">
-    <a href="{% url 'jobs:home' %}" class="footer__brand" aria-label="Raket home">
-      <img src="{% static 'image/raket_logo.png' %}" alt="Raket">
-    </a>
+  <div class="footer__top container">
+    <div class="footer__brand">
+      <a href="{% url 'jobs:home' %}" aria-label="Raket home">
+        <img src="{% static 'image/raket_logo.png' %}" alt="Raket" width="96" height="50">
+      </a>
+      <p>Short-term household jobs, matched with people nearby.</p>
+    </div>
 
-    <section class="footer__col" aria-labelledby="footer-seekers">
-      <h2 class="footer__heading" id="footer-seekers">Job Seekers</h2>
+    <nav class="footer__col" aria-labelledby="footer-seekers">
+      <h2 class="footer__heading" id="footer-seekers">For workers</h2>
       <ul class="footer__links">
+        <li><a href="{% url 'jobs:job_list' %}">Find jobs</a></li>
+        <li><a href="{% url 'jobs:my_applications' %}">Applied jobs</a></li>
         {% if not user.is_authenticated %}
+        <li><a href="{% url 'accounts:signup' %}">Create an account</a></li>
         <li><a href="{% url 'accounts:signin' %}">Sign in</a></li>
-        <li><a href="{% url 'accounts:signup' %}">Sign up</a></li>
         {% endif %}
-        <li><a href="{% url 'jobs:job_list' %}">Find Job</a></li>
       </ul>
-    </section>
+    </nav>
 
-    <section class="footer__col" aria-labelledby="footer-households">
-      <h2 class="footer__heading" id="footer-households">Households</h2>
+    <nav class="footer__col" aria-labelledby="footer-households">
+      <h2 class="footer__heading" id="footer-households">For households</h2>
       <ul class="footer__links">
-        <li><a href="{% url 'jobs:post_job' %}">Start Hiring</a></li>
-        <li><span class="footer__soon" title="Coming soon">Manage job posts</span></li>
-        <li><span class="footer__soon" title="Coming soon">Manage applicants</span></li>
+        <li><a href="{% url 'jobs:post_job' %}">Post a job</a></li>
+        <li><a href="{% url 'jobs:my_jobs' %}">Manage posted jobs</a></li>
+        <li><a href="{% url 'jobs:manage_applicants' %}">Manage applicants</a></li>
       </ul>
-    </section>
-
-    <section class="footer__col footer__credits" aria-labelledby="footer-credits">
-      <h2 class="footer__credits-title" id="footer-credits">Made by:</h2>
-      <ul class="footer__names">
-        <li>Pronton, Jonel</li>
-        <li>Jorquia, Jose Maria</li>
-        <li>Chua, Carl Angelo</li>
-        <li>Dalumpienes, Geo</li>
-      </ul>
-    </section>
+    </nav>
   </div>
 
-  <div class="footer__bottom">
-    <p class="footer__copy">&copy; {% now "Y" %} all rights reserved.</p>
+  <div class="footer__bottom container">
+    <p>&copy; {% now "Y" %} Raket. Built by Jonel Pronton, Jose Maria Jorquia, Carl Angelo Chua and Geo Dalumpienes.</p>
   </div>
 </footer>

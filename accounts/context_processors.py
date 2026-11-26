@@ -2,7 +2,6 @@ from .models import Profile
 
 
 def current_account(request):
-    """Adds ``account_name`` and ``account_role`` for the navbar (no database writes)."""
     user = getattr(request, 'user', None)
     if user is None or not user.is_authenticated:
         return {'account_name': '', 'account_role': ''}

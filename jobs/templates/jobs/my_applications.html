@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Applied jobs - Raket{% endblock %}
+
+{% block extra_head %}
+  <link rel="stylesheet" href="{% static 'css/jobs.css' %}?v=6">
+  <link rel="stylesheet" href="{% static 'css/manage.css' %}?v=1">
+{% endblock %}
+
+{% block content %}
+<header class="page-head">
+  <div class="container page-head__top">
+    <div>
+      <h1>Applied jobs</h1>
+      <p class="page-head__sub">Follow every application and see who has picked you.</p>
+    </div>
+    <a href="{% url 'jobs:job_list' %}" class="btn btn--primary">Find more jobs</a>
+  </div>
+</header>
+
+<div class="container manage">
+  {% include "includes/status_tabs.html" %}
+
+  <div class="stack">
+  {% for app in applications %}
+    <article class="row-card">
+      <div class="row-card__main">
+        <h2 class="row-card__title"><a href="{% url 'jobs:job_detail' app.job.pk %}">{{ app.job.title }}</a></h2>
+        <p class="row-card__sub">{{ app.job.household_name }} · {{ app.job.location }}</p>
+        <ul class="row-card__facts">
+          <li>{{ app.job.payment_amount }} / {{ app.job.get_pay_period_display }}</li>
+          <li>Work date: {{ app.job.work_date|date:"M j, Y" }}</li>
+          <li>Applied {{ app.created_at|date:"M j, Y" }}</li>
+        </ul>
+        {% if app.cover_note %}<p class="row-card__note">“{{ app.cover_note|truncatechars:160 }}”</p>{% endif %}
+        <p class="row-card__error" role="alert" data-error hidden></p>
+      </div>
+      <div class="row-card__side">
+        <span class="status status--{{ app.status }}">{{ app.get_status_display }}</span>
+        <a href="{% url 'jobs:job_detail' app.job.pk %}" class="btn btn--ghost btn--sm">View job</a>
+        {% if app.status != 'hired' %}
+        <button type="button" class="btn btn--ghost btn--sm btn--danger" data-action="delete" data-url="{% url 'api:application_detail' application_id=app.pk %}" data-busy="Withdrawing…">Withdraw</button>
+        {% endif %}
+      </div>
+    </article>
+  {% empty %}
+    <div class="empty">
+      <span class="empty__icon" aria-hidden="true"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4h14v16H5z"/><path d="M9 9h6M9 13h6"/></svg></span>
+      {% if status %}
+        <h3>No applications with this status.</h3>
+        <a href="{% url 'jobs:my_applications' %}" class="btn btn--ghost btn--sm">Show all applications</a>
+      {% else %}
+        <h3>You haven't applied to any jobs yet.</h3>
+        <p>Find a job that fits and send the household a short note.</p>
+        <a href="{% url 'jobs:job_list' %}" class="btn btn--primary btn--sm">Find jobs</a>
+      {% endif %}
+    </div>
+  {% endfor %}
+  </div>
+
+  {% include "includes/pager.html" %}
+</div>
+{% endblock %}
+
+{% block extra_js %}<script src="{% static 'js/manage.js' %}?v=1"></script>{% endblock %}

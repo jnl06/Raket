@@ -1,58 +1,122 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}Raket{% endblock %}
+{% block title %}Raket - Short-term household jobs{% endblock %}
 
 {% block extra_head %}
-  <link rel="stylesheet" href="{% static 'css/jobs.css' %}?v=4">
-  <link rel="stylesheet" href="{% static 'css/hero.css' %}?v=3">
+  <link rel="stylesheet" href="{% static 'css/jobs.css' %}?v=6">
+  <link rel="stylesheet" href="{% static 'css/home.css' %}?v=1">
 {% endblock %}
 
 {% block content %}
 <section class="hero">
+  <div class="container hero__grid">
 
-  <div class="hero-text">
-    <p class="hero-eyebrow">Spread the word about Raket!</p>
+    <div class="hero__text">
+      <h1>{% if user.is_authenticated %}Welcome back, {{ account_name }}.{% else %}Extra hands for your home. Extra income for you.{% endif %}</h1>
 
-    <h1>{% if user.is_authenticated %}Welcome back, {{ account_name }}!{% else %}Sign up to get started!{% endif %}</h1>
+      <p class="hero__lead">
+        Raket links households with people nearby for short-term jobs: cleaning, childcare, cooking, errands and repairs.
+      </p>
 
-    <p class="hero-description">
-      Find jobs, create trackable resumes and enrich your applications.
-      Carefully crafted for helping the needs of different industries.
-      {% if not user.is_authenticated %}You sign up in the top right corner.{% endif %}
-    </p>
+      <form class="hero__search" action="{% url 'jobs:job_list' %}" method="get" role="search">
+        <div class="hero__field">
+          <label for="hero-q" class="sr-only">Search jobs</label>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>
+          <input id="hero-q" type="search" name="q" placeholder="What kind of job? e.g. cleaning, Lucena">
+        </div>
+        <button type="submit" class="btn btn--primary btn--lg">Search jobs</button>
+      </form>
 
-    <form class="hero-search" action="{% url 'jobs:job_list' %}" method="get">
-      <div class="hero-search-box">
-        <input type="text" name="q" aria-label="Search jobs" placeholder="Search jobs">
+      {% if popular_categories %}
+      <div class="hero__popular">
+        <h2 class="hero__popular-title">Popular searches</h2>
+        <ul class="hero__tags">
+          {% for c in popular_categories %}
+          <li><a href="{% url 'jobs:job_list' %}?category={{ c.value|urlencode }}" class="chip">{{ c.label }}</a></li>
+          {% endfor %}
+        </ul>
+      </div>
+      {% endif %}
+    </div>
 
-        <button type="submit" aria-label="Search">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="11" cy="11" r="7"/>
-            <path d="M20 20l-4-4"/>
-          </svg>
-        </button>
+    <div class="hero__art">
+      <div class="hero__disc"></div>
+      <svg class="hero__trail" viewBox="0 0 200 200" aria-hidden="true"><path d="M20 150 C 10 70, 70 12, 150 14" fill="none" stroke="currentColor" stroke-width="9" stroke-linecap="round"/></svg>
+      <img src="{% static 'image/hero.png' %}" alt="A group of people ready for work: cleaners, a cook, a driver, a gardener and a handyman" width="590" height="590">
+      {% if open_jobs_count %}
+      <a href="{% url 'jobs:job_list' %}" class="hero__badge">
+        <strong>{{ open_jobs_count }}</strong>
+        <span>open job{{ open_jobs_count|pluralize }} right now</span>
+      </a>
+      {% endif %}
+    </div>
+
+  </div>
+</section>
+
+{% if open_jobs_count %}
+<section class="section" aria-labelledby="browse-title">
+  <div class="container">
+    <div class="section__head">
+      <h2 id="browse-title">Browse by kind of work</h2>
+      <a href="{% url 'jobs:job_list' %}" class="section__more">See all jobs</a>
+    </div>
+
+    <ul class="cat-grid">
+      {% for c in categories %}
+      <li>
+        <a href="{% url 'jobs:job_list' %}?category={{ c.value|urlencode }}" class="cat-tile">
+          <span class="cat-tile__icon">{% include "includes/category_icon.html" with category=c.value %}</span>
+          <span class="cat-tile__name">{{ c.label }}</span>
+          <span class="cat-tile__count">{% if c.job_count %}{{ c.job_count }} open{% else %}No jobs yet{% endif %}</span>
+        </a>
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
+</section>
+{% endif %}
+
+{% if latest_jobs %}
+<section class="section" aria-labelledby="latest-title">
+  <div class="container">
+    <div class="section__head">
+      <h2 id="latest-title">Newest jobs</h2>
+      <a href="{% url 'jobs:job_list' %}?sort=newest" class="section__more">View all</a>
+    </div>
+    <div class="job-list">
+      {% for job in latest_jobs %}{% include "includes/job_card.html" %}{% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<section class="section" aria-labelledby="how-title">
+  <div class="container">
+    <div class="section__head"><h2 id="how-title">How Raket works</h2></div>
+
+    <div class="how">
+      <div class="how__col card">
+        <h3>If you want work</h3>
+        <ol class="steps">
+          <li><strong>Create a free account.</strong> Choose “Find work” and add your phone number.</li>
+          <li><strong>Pick a job.</strong> Filter by kind of work, place and how long it lasts.</li>
+          <li><strong>Send a short note.</strong> The household reviews it and picks who to hire.</li>
+        </ol>
+        <a href="{% url 'accounts:signup' %}?role=job_seeker" class="btn btn--primary">Find work</a>
       </div>
 
-      <button type="submit" class="btn-primary">Search</button>
-      <a href="{% url 'jobs:post_job' %}" class="btn-primary btn-post">POST A JOB</a>
-    </form>
-
-    {% if popular_categories %}
-    <h2 class="hero-popular">Popular searches</h2>
-
-    <div class="hero-tags">
-      {% for c in popular_categories %}
-      <a href="{% url 'jobs:job_list' %}?category={{ c.value|urlencode }}" class="hero-tag">{{ c.label }}</a>
-      {% endfor %}
+      <div class="how__col card">
+        <h3>If you need help at home</h3>
+        <ol class="steps">
+          <li><strong>Create a free account.</strong> Choose “Hire help”.</li>
+          <li><strong>Post your job.</strong> Say what, where, when and how much you will pay.</li>
+          <li><strong>Choose who to hire.</strong> Applicants write to you, you decide.</li>
+        </ol>
+        <a href="{% url 'jobs:post_job' %}" class="btn btn--lime">Post a job</a>
+      </div>
     </div>
-    {% endif %}
   </div>
-
-  <div class="hero-art">
-    <div class="hero-circle"></div>
-    <img src="{% static 'image/hero.png' %}" alt="Raket workers illustration">
-  </div>
-
 </section>
 {% endblock %}

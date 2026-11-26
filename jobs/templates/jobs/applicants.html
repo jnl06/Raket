@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Manage applicants - Raket{% endblock %}
+
+{% block extra_head %}
+  <link rel="stylesheet" href="{% static 'css/jobs.css' %}?v=6">
+  <link rel="stylesheet" href="{% static 'css/manage.css' %}?v=1">
+{% endblock %}
+
+{% block content %}
+<header class="page-head">
+  <div class="container page-head__top">
+    <div>
+      <h1>{% if job %}Applicants for {{ job.title }}{% else %}Applicants{% endif %}</h1>
+      <p class="page-head__sub">
+        {% if job %}<a href="{% url 'jobs:manage_applicants' %}" class="text-link">Show applicants for all jobs</a>{% else %}Review who applied to your jobs and choose who to hire.{% endif %}
+      </p>
+    </div>
+    <a href="{% url 'jobs:my_jobs' %}" class="btn btn--ghost">Posted jobs</a>
+  </div>
+</header>
+
+<div class="container manage">
+  {% include "includes/status_tabs.html" %}
+
+  <div class="stack">
+  {% for app in applications %}
+    <article class="row-card row-card--person">
+      <span class="avatar" aria-hidden="true">{{ app.profile.full_name|default:"?"|slice:":1"|upper }}</span>
+      <div class="row-card__main">
+        <h2 class="row-card__title">{{ app.profile.full_name|default:app.applicant.get_username }}</h2>
+        <p class="row-card__sub">
+          {% if app.profile.location %}{{ app.profile.location }} · {% endif %}Applied {{ app.created_at|date:"M j, Y" }}
+          {% if not job %}· for <a href="{% url 'jobs:job_detail' app.job.pk %}" class="text-link">{{ app.job.title }}</a>{% endif %}
+        </p>
+
+        {% if app.skills %}<ul class="row-card__chips">{% for skill in app.skills %}<li class="chip">{{ skill }}</li>{% endfor %}</ul>{% endif %}
+        {% if app.cover_note %}<p class="row-card__note">“{{ app.cover_note }}”</p>{% endif %}
+
+        <ul class="row-card__facts">
+          {% if app.profile.resume %}<li><a href="{% url 'api:application_resume' application_id=app.pk %}" class="text-link">Download resume</a></li>{% endif %}
+          {% if app.status == 'hired' %}
+            <li>Email: <a href="mailto:{{ app.applicant.email }}" class="text-link">{{ app.applicant.email }}</a></li>
+            {% if app.profile.phone %}<li>Phone: {{ app.profile.phone }}</li>{% endif %}
+          {% else %}
+            <li class="muted">Contact details show after you hire.</li>
+          {% endif %}
+        </ul>
+        <p class="row-card__error" role="alert" data-error hidden></p>
+      </div>
+      <div class="row-card__side">
+        <span class="status status--{{ app.status }}">{{ app.get_status_display }}</span>
+        {% for value, label, style in app.actions %}
+        <button type="button" class="btn btn--{{ style }} btn--sm" data-action="patch" data-status="{{ value }}" data-url="{% url 'api:application_detail' application_id=app.pk %}" data-busy="Saving…">{{ label }}</button>
+        {% endfor %}
+      </div>
+    </article>
+  {% empty %}
+    <div class="empty">
+      <span class="empty__icon" aria-hidden="true"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.6-3.6 3.4-5.5 6.5-5.5s5.9 1.9 6.5 5.5"/><path d="M17 5.5a3.2 3.2 0 0 1 0 6M18.5 14.7c1.8.6 2.8 2.2 3 5.3"/></svg></span>
+      {% if status %}
+        <h3>No applicants with this status.</h3>
+        <a href="{% url 'jobs:manage_applicants' %}{% if job %}?job={{ job.pk }}{% endif %}" class="btn btn--ghost btn--sm">Show all applicants</a>
+      {% elif has_jobs %}
+        <h3>No one has applied yet.</h3>
+        <p>Applicants show up here as soon as someone applies to one of your jobs.</p>
+        <a href="{% url 'jobs:my_jobs' %}" class="btn btn--ghost btn--sm">See your posted jobs</a>
+      {% else %}
+        <h3>Post a job to get applicants.</h3>
+        <a href="{% url 'jobs:post_job' %}" class="btn btn--primary btn--sm">Post a job</a>
+      {% endif %}
+    </div>
+  {% endfor %}
+  </div>
+
+  {% include "includes/pager.html" %}
+</div>
+{% endblock %}
+
+{% block extra_js %}<script src="{% static 'js/manage.js' %}?v=1"></script>{% endblock %}

@@ -72,32 +72,32 @@ class JobForm(JobRulesMixin, forms.ModelForm):
         model = Job
         fields = JOB_FIELDS
         labels = {
-            "title": "Job Title",
-            "category": "Job Category",
-            "description": "Job Description",
+            "title": "Job title",
+            "category": "Kind of work",
+            "description": "What needs to be done",
             "location": "Location",
-            "work_date": "Work Date",
-            "work_schedule": "Work Schedule",
-            "employment_type": "Employment Type",
-            "duration": "Duration",
-            "estimated_payment": "Estimated Payment (Pesos)",
-            "max_payment": "Maximum Payment (Pesos)",
-            "pay_period": "Paid Per",
-            "number_of_workers": "Number of Workers",
-            "requirements": "Requirements / Skills",
+            "work_date": "Work date",
+            "work_schedule": "Time of day",
+            "employment_type": "Employment type",
+            "duration": "How long",
+            "estimated_payment": "Pay (pesos)",
+            "max_payment": "Highest pay (pesos)",
+            "pay_period": "Paid per",
+            "number_of_workers": "Workers needed",
+            "requirements": "Requirements",
             "experience": "Experience",
             "industry": "Industry",
-            "how_to_apply": "How to Apply",
+            "how_to_apply": "How to apply",
         }
         widgets = {
-            "title": forms.TextInput(attrs={"placeholder": "e.g. House Cleaning"}),
+            "title": forms.TextInput(attrs={"placeholder": "e.g. Weekend house cleaning"}),
             "description": forms.Textarea(
                 attrs={
-                    "class": "tall",
-                    "placeholder": "Describe the job, duties, and any additional information...",
+                    "class": "tall", "rows": 5,
+                    "placeholder": "Describe the duties, the size of the home or task, and anything else workers should know.",
                 }
             ),
-            "location": forms.TextInput(attrs={"placeholder": "City / Barangay"}),
+            "location": forms.TextInput(attrs={"placeholder": "Barangay and city, e.g. Ilayang Dupay, Lucena"}),
             "work_date": forms.DateInput(attrs={"type": "date"}),
             "estimated_payment": forms.NumberInput(
                 attrs={"placeholder": "e.g. 500", "min": "1", "step": "any"}
@@ -110,7 +110,7 @@ class JobForm(JobRulesMixin, forms.ModelForm):
             ),
             "requirements": forms.Textarea(
                 attrs={
-                    "class": "medium",
+                    "class": "medium", "rows": 4,
                     "placeholder": "One per line, e.g. Must be 18+",
                 }
             ),
@@ -120,7 +120,7 @@ class JobForm(JobRulesMixin, forms.ModelForm):
             "industry": forms.TextInput(attrs={"placeholder": "e.g. Cleaning, Household"}),
             "how_to_apply": forms.Textarea(
                 attrs={
-                    "class": "medium",
+                    "class": "medium", "rows": 4,
                     "placeholder": "Tell applicants what to prepare or who to contact",
                 }
             ),
@@ -139,4 +139,13 @@ class JobForm(JobRulesMixin, forms.ModelForm):
         ):
             field = self.fields[name]
             field.choices = [("", text)] + [c for c in field.choices if c[0] != ""]
+        # Shared control styles (see static/css/base.css).
+        for field in self.fields.values():
+            widget = field.widget
+            if isinstance(widget, forms.CheckboxInput):
+                continue
+            base = "select" if isinstance(widget, forms.Select) else (
+                "textarea" if isinstance(widget, forms.Textarea) else "input"
+            )
+            widget.attrs["class"] = f'{base} {widget.attrs.get("class", "")}'.strip()
         self.fields["work_date"].widget.attrs["min"] = timezone.localdate().isoformat()

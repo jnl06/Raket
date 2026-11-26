@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Manage posted jobs - Raket{% endblock %}
+
+{% block extra_head %}
+  <link rel="stylesheet" href="{% static 'css/jobs.css' %}?v=6">
+  <link rel="stylesheet" href="{% static 'css/manage.css' %}?v=1">
+{% endblock %}
+
+{% block content %}
+<header class="page-head">
+  <div class="container page-head__top">
+    <div>
+      <h1>Posted jobs</h1>
+      <p class="page-head__sub">Close a job when you're done, or open its applicants to choose who to hire.</p>
+    </div>
+    <a href="{% url 'jobs:post_job' %}" class="btn btn--primary">Post a job</a>
+  </div>
+</header>
+
+<div class="container manage">
+  <dl class="stats">
+    <div><dt>Jobs posted</dt><dd>{{ totals.total }}</dd></div>
+    <div><dt>Open</dt><dd>{{ totals.active }}</dd></div>
+    <div><dt>Closed</dt><dd>{{ totals.closed }}</dd></div>
+    <div><dt>Applicants</dt><dd>{{ applicant_total }}</dd></div>
+  </dl>
+
+  <nav class="tabs" aria-label="Filter by status">
+    <a href="{% url 'jobs:my_jobs' %}" class="tabs__item{% if not status %} is-active{% endif %}">All <span class="tabs__count">{{ totals.total }}</span></a>
+    <a href="?status=active" class="tabs__item{% if status == 'active' %} is-active{% endif %}">Open <span class="tabs__count">{{ totals.active }}</span></a>
+    <a href="?status=closed" class="tabs__item{% if status == 'closed' %} is-active{% endif %}">Closed <span class="tabs__count">{{ totals.closed }}</span></a>
+  </nav>
+
+  <div class="stack">
+  {% for job in jobs %}
+    <article class="row-card">
+      <div class="row-card__main">
+        <h2 class="row-card__title"><a href="{% url 'jobs:job_detail' job.pk %}">{{ job.title }}</a></h2>
+        <p class="row-card__sub">{{ job.get_category_display }} · {{ job.location }}</p>
+        <ul class="row-card__facts">
+          <li>{{ job.payment_amount }} / {{ job.get_pay_period_display }}</li>
+          <li>Work date: {{ job.work_date|date:"M j, Y" }}</li>
+          <li>{{ job.applicant_count }} applicant{{ job.applicant_count|pluralize }}</li>
+          <li>{{ job.hired_count }} of {{ job.number_of_workers }} hired</li>
+        </ul>
+        <p class="row-card__error" role="alert" data-error hidden></p>
+      </div>
+      <div class="row-card__side">
+        {% if job.status == 'closed' %}<span class="status status--closed">Closed</span>
+        {% elif not job.is_open %}<span class="status status--closed">Past work date</span>
+        {% else %}<span class="status status--hired">Open</span>{% endif %}
+        <a href="{% url 'jobs:manage_applicants' %}?job={{ job.pk }}" class="btn btn--primary btn--sm">Applicants</a>
+        {% if job.status == 'active' %}
+        <button type="button" class="btn btn--ghost btn--sm" data-action="post" data-url="{% url 'api:job_close' job_id=job.pk %}" data-busy="Closing…">Close job</button>
+        {% endif %}
+      </div>
+    </article>
+  {% empty %}
+    <div class="empty">
+      <span class="empty__icon" aria-hidden="true"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8h18v11H3z"/><path d="M9 8V6a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></span>
+      {% if status %}
+        <h3>No jobs with this status.</h3>
+        <a href="{% url 'jobs:my_jobs' %}" class="btn btn--ghost btn--sm">Show all jobs</a>
+      {% else %}
+        <h3>You haven't posted a job yet.</h3>
+        <p>Tell workers what you need and when. It takes about two minutes.</p>
+        <a href="{% url 'jobs:post_job' %}" class="btn btn--primary btn--sm">Post a job</a>
+      {% endif %}
+    </div>
+  {% endfor %}
+  </div>
+
+  {% include "includes/pager.html" %}
+</div>
+{% endblock %}
+
+{% block extra_js %}<script src="{% static 'js/manage.js' %}?v=1"></script>{% endblock %}
