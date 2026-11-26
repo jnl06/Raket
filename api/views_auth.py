@@ -22,7 +22,13 @@ from .serializers import user_dict
 from .utils import ApiError, api_view, json_body, require_auth, validation_error
 
 User = get_user_model()
-PHONE_RE = re.compile(r"^\+?\d[\d\s-]{6,17}$")
+PHONE_RE = re.compile(r"^09\d{9}$")
+PHONE_ERROR = "Enter a valid PH mobile number (11 digits, starts with 09)."
+
+
+def _clean_phone(value):
+    """Drop spaces and dashes so 0917 123 4567 still pass."""
+    return re.sub(r"[\s-]", "", value or "")
 TRUE_VALUES = (True, "true", "True", "1", "on", 1)
 
 
@@ -62,11 +68,11 @@ def register(request):
     except ValidationError:
         errors["email"] = ["Enter a valid email address."]
 
-    phone = (data.get("phone") or "").strip()
+    phone = _clean_phone(data.get("phone"))
     if not phone:
         errors["phone"] = ["Enter your phone number."]
     elif not PHONE_RE.match(phone):
-        errors["phone"] = ["Enter a valid phone number."]
+        errors["phone"] = [PHONE_ERROR]
 
     password = data.get("password") or ""
     if data.get("confirm_password") != password:
@@ -151,9 +157,9 @@ def me(request):
             profile.full_name = name[:150]
             user.first_name = name[:150]
     if "phone" in data:
-        phone = (data["phone"] or "").strip()
+        phone = _clean_phone(data["phone"])
         if phone and not PHONE_RE.match(phone):
-            errors["phone"] = ["Enter a valid phone number."]
+            errors["phone"] = [PHONE_ERROR]
         profile.phone = phone
     for field, limit in (("location", 150), ("bio", 2000), ("skills", 300)):
         if field in data:
